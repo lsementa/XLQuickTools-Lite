@@ -3,7 +3,7 @@
 **Quick Tools Lite** is a lightweight, cross-platform version of my [Quick Tools](https://github.com/lsementa/XLQuickTools) VSTO Excel Add-In.
 
 <div align="center">
-<img src="images/Main.png" alt="Screenshot">
+<img src="images/main.png" alt="Screenshot">
 </div>
 
 ## Platform Comparison
