@@ -1,0 +1,216 @@
+﻿body {
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 14px;
+    margin: 0;
+    padding: 0;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+img.icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
+    flex-shrink: 0;
+    vertical-align: middle;
+}
+
+.main-content {
+    flex: 1;
+    padding: 5px;
+    margin-top: 20px;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    background-color: #f9f9f9;
+    padding: 2px 1px;
+    border-bottom: 1px solid #ccc;
+    position: relative;
+}
+
+.header-button img {
+    width: 20px;
+    height: 20px;
+}
+
+.header-button {
+    border: none;
+    background-color: #f9f9f9;
+    cursor: pointer;
+}
+
+.header-separator {
+    width: 1px;
+    height: 20px;
+    background-color: #ccc;
+}
+
+.header-dropdown-menu {
+    position: absolute;
+    top: 100%;
+    background-color: white;
+    border: 1px solid #e2e2e2;
+    z-index: 100;
+    display: none;
+    flex-direction: column;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+    border-radius: 0 0 4px 4px;
+    overflow: hidden;
+}
+
+    .header-dropdown-menu.show {
+        display: flex;
+    }
+
+    .header-dropdown-menu div {
+        display: flex;
+        align-items: center;
+        padding: 6px 10px;
+        cursor: pointer;
+        white-space: nowrap;
+        font-size: 12px;
+    }
+
+        .header-dropdown-menu div:hover {
+            background-color: #f0f0f0;
+        }
+
+        .header-dropdown-menu div img {
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            flex-shrink: 0;
+        }
+
+.header-title {
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+    vertical-align: middle;
+    padding-left: 10px;
+}
+
+
+.footer {
+    width: 100%;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    background-color: #f9f9f9;
+    font-size: 12px;
+    color: #666;
+    border-top: 1px solid #e2e2e2;
+    text-align: center;
+}
+
+.section-label {
+    font-size: 13px;
+    font-weight: bold;
+    padding: 6px 12px;
+    border-radius: 4px;
+    display: inline-block;
+    margin-bottom: 5px;
+    margin-left: calc(50% - 110px);
+    text-align: center;
+}
+
+.menu {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 200px;
+    margin: 0 auto;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    padding: 6px 10px;
+    background-color: #f9f9f9;
+    border-radius: 4px;
+    border: 1px solid #c2c2c2;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    font-size: 12px;
+}
+
+    .menu-item:hover {
+        background-color: #f0f0f0;
+    }
+
+    .menu-item span {
+        flex-grow: 1;
+    }
+
+.full-dropdown-button {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 10px;
+    background-color: #f9f9f9;
+    border-radius: 4px;
+    border: 1px solid #c2c2c2;
+    position: relative;
+    cursor: default;
+    font-size: 12px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+    .full-dropdown-button:hover {
+        background-color: #f0f0f0;
+    }
+
+    .full-dropdown-button .label {
+        flex-grow: 1;
+        text-align: left;
+    }
+
+    .full-dropdown-button .caret-icon {
+        width: 12px;
+        height: 12px;
+        margin-left: 2px;
+        vertical-align: middle;
+    }
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background-color: white;
+    border: 1px solid #e2e2e2;
+    z-index: 100;
+    display: none;
+    flex-direction: column;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+    border-radius: 0 0 4px 4px;
+    overflow: hidden;
+}
+
+    .dropdown-menu.show {
+        display: flex;
+    }
+
+    .dropdown-menu div {
+        display: flex;
+        align-items: center;
+        padding: 6px 10px;
+        cursor: pointer;
+        white-space: nowrap;
+        font-size: 11px;
+    }
+
+        .dropdown-menu div:hover {
+            background-color: #f0f0f0;
+        }
+
+        .dropdown-menu div img {
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            flex-shrink: 0;
+        }

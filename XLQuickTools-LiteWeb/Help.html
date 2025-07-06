@@ -1,0 +1,96 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <title>Help</title>
+
+    <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js" type="text/javascript"></script>
+    <!-- To enable offline debugging using a local reference to Office.js, use:  -->
+    <!-- <script src="Scripts/Office/1/office.js" type="text/javascript"></script>  -->
+    <!-- Scripts -->
+    <script src="/Scripts/Menu.js" type="text/javascript"></script>
+
+    <!-- Style Sheets -->
+    <link href="/Content/Menu.css" rel="stylesheet" type="text/css" />
+    <link href="/Content/Modal.css" rel="stylesheet" type="text/css" />
+    <link href="/Content/Help.css" rel="stylesheet" type="text/css" />
+
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <button class="header-button" onclick="toggleDropdown(this)">
+            <img src="images/Menu.png" alt="Menu">
+        </button>
+        <div class="header-dropdown-menu">
+            <div onclick="handleClick('help')">
+                <img src="images/Guide.png" class="icon" alt="">User Guide
+            </div>
+            <div onclick="handleClick('home')">
+                <img src="images/Home.png" class="icon" alt="">Main Menu
+            </div>
+        </div>
+        <div class="header-separator"></div>
+        <div class="header-title">Main Menu</div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="help-section">
+            <h2>Quick Tools (Lite)</h2>
+            <p>Welcome! This guide provides an overview of the available tools and what they do.</p>
+
+            <h3>Formatting Tools</h3>
+            <ul>
+                <li><strong>Trim and Clean</strong> – Removes any leading, trailing or extra spaces and non-printable characters from cells. Removes two or more consecutive spaces between characters.</li>
+                <li>
+                    <strong>Text Options</strong> – Includes:
+                    <ul>
+                        <li>Add Leading/Trailing Text</li>
+                        <li>Convert to Uppercase</li>
+                        <li>Convert to Lowercase</li>
+                        <li>Convert to Propercase (Title Case)</li>
+                        <li>Remove Letters [A-Z]</li>
+                        <li>Remove Numbers [0-9]</li>
+                        <li>Remove Special Characters [~!@#$%^&*]</li>
+                    </ul>
+                </li>
+                <li><strong>Date/Text Converter</strong> – Converts date formats or dates as text between different regional styles. Easily switch between Excel and Text dates.</li>
+            </ul>
+
+            <h3>Empty Cells</h3>
+            <ul>
+                <li><strong>Delete Empty Rows</strong> – Removes rows that contain no data.</li>
+                <li><strong>Delete Empty Columns</strong> – Removes columns that contain no data.</li>
+                <li><strong>Fill Down</strong> – Fills down values in empty cells based on the cell above.</li>
+            </ul>
+
+            <h3>Data Validation Tools</h3>
+            <ul>
+                <li><strong>Check for Duplicates</strong> – Identifies duplicate values in a column. Inserts a count if they do exist.</li>
+                <li><strong>Filter</strong> – The built-in Excel filter, placed on the task pane for easier access while using other tools.</li>
+                <li><strong>Column Information</strong> – Provides details on the selected column. Unique, non-blank, blank and total rows.</li>
+                <li><strong>Reset Column</strong> – Ensures the column's formatting and data handling are reset. Numbers stored as text will be recognized as numbers.</li>
+                <li><strong>Find Missing Data</strong> – Find missing data between two ranges. Creates a report on missing data and you can set it to highlight cells.</li>
+                <li><strong>Compare Worksheets</strong> – Compares two worksheets. Creates a report on differences and you can set it to highlight cells.</li>
+            </ul>
+
+            <h3>Delimiter Tools</h3>
+            <ul>
+                <li><strong>Split Columns to Rows</strong> – Splits delimited columns into rows. It can handle columns with varying delimited lengths.</li>
+                <li><strong>Selection to Clipboard</strong> – Copies cells to clipboard with a delimiter, optionally adding leading/trailing text. 1,2,3.. 'a','b','c'</li>
+            </ul>
+
+            <p>Use the <strong>Main Menu</strong> to return to the primary tool selection screen at any time.</p>
+        </div>
+
+
+
+    </div>
+    <!-- Footer -->
+    <div class="footer">
+        &nbsp;
+    </div>
+</body>
+</html>

@@ -1,0 +1,167 @@
+﻿/* Modal StyleSheet */
+
+.hidden-input {
+    display: block;
+    margin-top: 8px;
+    margin-bottom: 12px;
+    opacity: 0;
+    visibility: hidden;
+    height: 0;
+    padding: 8px;
+    border: 0;
+    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out, height 0.3s ease-in-out, padding 0.3s ease-in-out, border 0.3s ease-in-out;
+}
+
+    .hidden-input.show {
+        opacity: 1;
+        visibility: visible;
+        height: auto;
+        padding: 8px;
+        border: 1px solid #ddd;
+        margin-bottom: 12px;
+    }
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0s, opacity 0.3s ease-in-out;
+}
+
+    .modal-overlay.show-modal {
+        visibility: visible;
+        opacity: 1;
+    }
+
+.modal-content {
+    background-color: #fff;
+    padding: 16px;
+    border-radius: 6px;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+    width: 90%;
+    max-width: 280px;
+    transform: translateY(-15px);
+    transition: transform 0.3s ease-in-out;
+    font-size: 12px; /* GLOBAL FONT SIZE */
+}
+
+.modal-overlay.show-modal .modal-content {
+    transform: translateY(0);
+}
+
+.modal-body {
+    margin-top: 12px;
+    margin-bottom: 15px;
+}
+
+    .modal-body label {
+        display: block;
+        margin-bottom: 4px;
+        font-weight: bold;
+        color: #333;
+        font-size: 12px;
+    }
+
+    .modal-body input[type="text"] {
+        width: calc(100% - 16px);
+        padding: 8px;
+        margin-bottom: 12px;
+        border: 1px solid #ddd;
+        border-radius: 3px;
+        font-size: 12px;
+        text-align: center;
+    }
+
+
+.checkbox-inline {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    margin-bottom: 12px;
+}
+
+    .checkbox-inline input[type="checkbox"] {
+        margin: 0;
+        transform: scale(0.9);
+    }
+
+    .checkbox-inline label {
+        margin: 0;
+        font-weight: normal;
+        cursor: pointer;
+    }
+
+
+.modal-footer {
+    text-align: right;
+}
+
+    .modal-footer button {
+        padding: 8px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+        margin-left: 8px;
+        transition: background-color 0.2s ease-in-out;
+        width: 90px;
+    }
+
+.button-ok {
+    background-color: #0078d4;
+    color: white;
+}
+
+    .button-ok:hover {
+        background-color: #005ea6;
+    }
+
+.button-cancel {
+    background-color: #f0f0f0;
+    color: #333;
+    border: 1px solid #ccc;
+}
+
+    .button-cancel:hover {
+        background-color: #e0e0e0;
+    }
+
+.modal-select {
+    width: 100%;
+    height: 32px;
+    font-size: 12px;
+    padding: 6px 8px;
+    margin-bottom: 12px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+}
+
+.range-selector {
+    width: 100%;
+    padding: 6px;
+    margin-bottom: 8px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    background-color: #f8f8f8;
+    cursor: pointer;
+    color: #333;
+    font-size: 12px;
+}
+
+    .range-selector::selection {
+        background: none;
+    }
+
+    .range-selector:read-only {
+        background-color: #f8f8f8;
+    }

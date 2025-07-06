@@ -1,0 +1,373 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <title>Menu</title>
+
+    <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js" type="text/javascript"></script>
+    <!-- To enable offline debugging using a local reference to Office.js, use:  -->
+    <!-- <script src="Scripts/Office/1/office.js" type="text/javascript"></script>  -->
+    <!-- Scripts -->
+    <script src="/Scripts/App.js" type="text/javascript"></script>
+    <script src="/Scripts/Modal.js" type="text/javascript"></script>
+    <script src="/Scripts/Menu.js" type="text/javascript"></script>
+
+    <!-- Style Sheets -->
+    <link href="/Content/Menu.css" rel="stylesheet" type="text/css" />
+    <link href="/Content/Modal.css" rel="stylesheet" type="text/css" />
+
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <button class="header-button" onclick="toggleDropdown(this)">
+            <img src="images/Menu.png" alt="Menu">
+        </button>
+        <div class="header-dropdown-menu">
+            <div onclick="handleClick('help')">
+                <img src="images/Guide.png" class="icon" alt="">User Guide
+            </div>
+            <div onclick="handleClick('home')">
+                <img src="images/Home.png" class="icon" alt="">Main Menu
+            </div>
+        </div>
+        <div class="header-separator"></div>
+        <div class="header-title">Main Menu</div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Section Label -->
+        <div class="section-label">
+            Formatting:
+        </div>
+        <div class="menu">
+            <!-- Full Dropdown Button: Trim & Clean -->
+            <div class="full-dropdown-button" onclick="toggleDropdown(this)">
+                <img src="images/TrimClean.png" class="icon" alt="">
+                <span class="label">Trim and Clean</span>
+                <img src="images/down-arrow.png" class="caret-icon" alt="▼" />
+                <div class="dropdown-menu">
+                    <div onclick="handleClick('trim-clean-selected')">
+                        <img src="images/Selected.png" class="icon" alt="">Selected Range
+                    </div>
+                    <div onclick="handleClick('trim-clean-sheet')">
+                        <img src="images/Worksheet.png" class="icon" alt="">Active Worksheet
+                    </div>
+                    <div onclick="handleClick('trim-clean-workbook')">
+                        <img src="images/Workbook.png" class="icon" alt="">Active Workbook
+                    </div>
+                </div>
+            </div>
+
+            <!-- Full Dropdown Button: Text Options -->
+            <div class="full-dropdown-button" onclick="toggleDropdown(this)">
+                <img src="images/TextOptions.png" class="icon" alt="">
+                <span class="label">Text Options</span>
+                <img src="images/down-arrow.png" class="caret-icon" alt="▼" />
+                <div class="dropdown-menu">
+                    <div onclick="handleClick('text-add-leadtrail')">
+                        <img src="images/LeadTrail.png" class="icon" alt="">Add Leading/Trailing
+                    </div>
+                    <div onclick="handleClick('text-uppercase')">
+                        <img src="images/Uppercase.png" class="icon" alt="">Uppercase
+                    </div>
+                    <div onclick="handleClick('text-lowercase')">
+                        <img src="images/Lowercase.png" class="icon" alt="">Lowercase
+                    </div>
+                    <div onclick="handleClick('text-propercase')">
+                        <img src="images/Propercase.png" class="icon" alt="">Propercase
+                    </div>
+                    <div onclick="handleClick('text-remove-letters')">
+                        <img src="images/Letters.png" class="icon" alt="">Remove Letters [A-Z]
+                    </div>
+                    <div onclick="handleClick('text-remove-numbers')">
+                        <img src="images/Numbers.png" class="icon" alt="">Remove Numbers [0-9]
+                    </div>
+                    <div onclick="handleClick('text-remove-special')">
+                        <img src="images/Special.png" class="icon" alt="">Remove Special [~!@#$%^&]
+                    </div>
+                </div>
+            </div>
+
+            <!-- Normal Button: Date/Text Converter -->
+            <div class="menu-item" onclick="handleClick('date-converter')">
+                <img src="images/DateConvert.png" class="icon" alt="Selection to Clipboard" />
+                <span>Date/Text Converter</span>
+            </div>
+
+            <!-- Full Dropdown Button: Rows & Columns -->
+            <div class="full-dropdown-button" onclick="toggleDropdown(this)">
+                <img src="images/Column.png" class="icon" alt="">
+                <span class="label">Empty Cells</span>
+                <img src="images/down-arrow.png" class="caret-icon" alt="▼" />
+                <div class="dropdown-menu">
+                    <div onclick="handleClick('delete-empty-rows')">
+                        <img src="images/DeleteRows.png" class="icon" alt="">Delete Empty Rows
+                    </div>
+                    <div onclick="handleClick('delete-empty-columns')">
+                        <img src="images/DeleteColumns.png" class="icon" alt="">Delete Empty Columns
+                    </div>
+                    <div onclick="handleClick('fill-down')">
+                        <img src="images/FillDown.png" class="icon" alt="">Fill Down
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Section Label -->
+        <div class="section-label">
+            Data:
+        </div>
+        <div class="menu">
+
+            <!-- Full Dropdown Button: Data Validation-->
+            <div class="full-dropdown-button" onclick="toggleDropdown(this)">
+                <img src="images/DataValidation.png" class="icon" alt="">
+                <span class="label">Validation Tools</span>
+                <img src="images/down-arrow.png" class="caret-icon" alt="▼" />
+                <div class="dropdown-menu">
+                    <div onclick="handleClick('check-duplicates')">
+                        <img src="images/Duplicates.png" class="icon" alt="">Check for Duplicates
+                    </div>
+                    <div onclick="handleClick('toggle-autofilter')">
+                        <img src="images/Filter.png" class="icon" alt="">Filter [On/Off]
+                    </div>
+                    <div onclick="handleClick('unique-count')">
+                        <img src="images/Information.png" class="icon" alt="">Column Information
+                    </div>
+                    <div onclick="handleClick('reset-column')">
+                        <img src="images/ResetColumn.png" class="icon" alt="">Reset Column
+                    </div>
+                </div>
+            </div>
+
+            <!-- Normal Button: Find Missing Data -->
+            <div class="menu-item" onclick="handleClick('find-missing-data')">
+                <img src="images/FindMissing.png" class="icon" alt="Selection to Clipboard" />
+                <span>Find Missing Data</span>
+            </div>
+
+            <!-- Normal Button: Compare Worksheets -->
+            <div class="menu-item" onclick="handleClick('compare-worksheets')">
+                <img src="images/Compare.png" class="icon" alt="Selection to Clipboard" />
+                <span>Compare Worksheets</span>
+            </div>
+        </div>
+
+        <!-- Section Label -->
+        <div class="section-label">
+            Delimiter:
+        </div>
+
+        <div class="menu">
+            <!-- Normal Button: Split to rows -->
+            <div class="menu-item" onclick="handleClick('split-to-rows')">
+                <img src="images/SplitToRows.png" class="icon" alt="Split to Rows" />
+                <span>Split Columns to Rows</span>
+            </div>
+            <!-- Normal Button: Selection to Clipboard -->
+            <div class="menu-item" onclick="handleClick('selection-to-clipboard')">
+                <img src="images/SelectionPlus.png" class="icon" alt="Selection to Clipboard" />
+                <span>Selection to Clipboard</span>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Hidden Modals Below This ---------------------------------------------------------->
+    <!-- Modal form for leading and trailing -->
+    <div id="addLeadTrailModal" class="modal-overlay">
+        <div class="modal-content">
+            <h2>Add Leading/Trailing Text</h2>
+            <div class="modal-body">
+                <label for="leadingText">Leading Text:</label>
+                <input type="text" id="leadingText">
+
+                <label for="trailingText">Trailing Text:</label>
+                <input type="text" id="trailingText">
+            </div>
+            <div class="modal-footer">
+                <button id="addLeadTrailOkButton" class="button-ok">OK</button>
+                <button id="addLeadTrailCancelButton" class="button-cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal form for Date/Text Converter -->
+    <div id="dateTextModal" class="modal-overlay">
+        <div class="modal-content">
+            <h2>Date/Text Converter</h2>
+            <div class="modal-body">
+                <label for="currentLocale">Current Locale:</label>
+                <select id="currentLocale" class="modal-select">
+                    <option value="US">USA: Month, Day, Year</option>
+                    <option value="Other">Other: Day, Month, Year</option>
+                </select>
+                <label for="convertLocale">Convert Locale:</label>
+                <select id="convertLocale" class="modal-select">
+                    <option value="US">USA: Month, Day, Year</option>
+                    <option value="Other">Other: Day, Month, Year</option>
+                </select>
+                <label for="convertFormat">Format:</label>
+                <select id="convertFormat" class="modal-select">
+                    <option value="yyyy-MM-dd">yyyy-MM-dd</option>
+                    <option value="M/d/yyyy">M/d/yyyy</option>
+                    <option value="MM/dd/yyyy">MM/dd/yyyy</option>
+                    <option value="MMM dd, yyyy">MMM dd, yyyy</option>
+                    <option value="MMMM dd, yyyy">MMMM dd, yyyy</option>
+                    <option value="yyyy/MM/dd">yyyy/MM/dd</option>
+                    <option value="yyyy.MM.dd">yyyy.MM.dd</option>
+                    <option value="yyyy MMM dd">yyyy MMM dd</option>
+                </select>
+                <label for="convertType">Type:</label>
+                <select id="convertType" class="modal-select">
+                    <option value="text">Text</option>
+                    <option value="excel">Excel Date</option>
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button id="dateTextOkButton" class="button-ok">OK</button>
+                <button id="dateTextCancelButton" class="button-cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal form for Selection Plus -->
+    <div id="selectionPlusModal" class="modal-overlay">
+        <div class="modal-content">
+            <h2>Selection Plus</h2> <div class="modal-body">
+                <label for="delimiterSelect">Delimiter:</label>
+                <select id="delimiterSelect" class="modal-select">
+                    <option value=" ">Space</option>
+                    <option value="\t">Tab</option>
+                    <option value="\r">Carriage Return</option>
+                    <option value="\n">Line Feed (Newline)</option>
+                    <option value="\v">Vertical Tab</option>
+                    <option value="\f">Form Feed</option>
+                    <option value="\r\n">Carriage Return and Line Feed</option>
+                    <option value="\u00A0">Non-breaking Space</option>
+                    <option value="custom">-- Custom --</option>
+                </select>
+
+                <input type="text" id="customDelimiterInput" class="hidden-input" placeholder="Enter custom delimiter" disabled>
+
+                <label for="selectionPlusLeadingText">Leading Text:</label>
+                <input type="text" id="selectionPlusLeadingText">
+
+                <label for="selectionPlusTrailingText">Trailing Text:</label>
+                <input type="text" id="selectionPlusTrailingText">
+            </div>
+            <div class="modal-footer">
+                <button id="selectionPlusOkButton" class="button-ok">OK</button>
+                <button id="selectionPlusCancelButton" class="button-cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal form for messages -->
+    <div id="message" class="modal-overlay">
+        <div class="modal-content">
+            <h2>Quick Tools (Lite)</h2>
+            <div class="modal-body">
+
+            </div>
+            <div class="modal-footer">
+                <button id="OkButton" class="button-ok">OK</button>
+                <button id="CancelButton" class="button-cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal form for Split to Rows -->
+    <div id="splitToRowsModal" class="modal-overlay">
+        <div class="modal-content">
+            <h2>Split to Rows</h2> <div class="modal-body">
+                <div class="checkbox-inline">
+                    <input type="checkbox" id="SRheaders">
+                    <label for="SRheaders">My data has headers</label>
+                </div>
+
+                <label for="SRdelimiterSelect">Delimiter:</label>
+                <select id="SRdelimiterSelect" class="modal-select">
+                    <option value=" ">Space</option>
+                    <option value="\t">Tab</option>
+                    <option value="\r">Carriage Return</option>
+                    <option value="\n">Line Feed (Newline)</option>
+                    <option value="\v">Vertical Tab</option>
+                    <option value="\f">Form Feed</option>
+                    <option value="\r\n">Carriage Return and Line Feed</option>
+                    <option value="\u00A0">Non-breaking Space</option>
+                    <option value="custom">-- Custom --</option>
+                </select>
+
+                <input type="text" id="SRcustomDelimiterInput" class="hidden-input" placeholder="Enter custom delimiter" disabled>
+
+            </div>
+            <div class="modal-footer">
+                <button id="splitToRowsOkButton" class="button-ok">OK</button>
+                <button id="splitToRowsCancelButton" class="button-cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal form for find missing -->
+    <div id="findMissingModal" class="modal-overlay">
+        <div class="modal-content">
+            <h2>Find Missing Data</h2>
+            <div class="modal-body">
+                <div class="checkbox-inline">
+                    <input type="checkbox" id="FMHighlight">
+                    <label for="FMHighlight">Highlight missing data</label>
+                </div>
+                <label for="range1">Range 1:</label>
+                <input type="text" id="range1"
+                       class="range-selector"
+                       placeholder="Select a range in Excel then click here!"
+                       onclick="getUserRange(this);" readonly>
+                <label for="range2">Range 2:</label>
+                <input type="text" id="range2"
+                       class="range-selector"
+                       placeholder="Select a range in Excel then click here!"
+                       onclick="getUserRange(this);" readonly>
+            </div>
+            <div class="modal-footer">
+                <button id="findMissingOkButton" class="button-ok">OK</button>
+                <button id="findMissingCancelButton" class="button-cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal form for compare worksheets -->
+    <div id="compareSheetsModal" class="modal-overlay">
+        <div class="modal-content">
+            <h2>Compare Worksheets</h2>
+            <div class="modal-body">
+                <div class="checkbox-inline">
+                    <input type="checkbox" id="CSHighlight">
+                    <label for="CSHighlight">Highlight differences</label>
+                </div>
+                <label for="compareSheetsWS1Select">Worksheet 1:</label>
+                <select id="compareSheetsWS1Select" class="modal-select">
+                </select>
+                <label for="compareSheetsWS2Select">Worksheet 2:</label>
+                <select id="compareSheetsWS2Select" class="modal-select">
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button id="compareSheetsOkButton" class="button-ok">OK</button>
+                <button id="compareSheetsCancelButton" class="button-cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Hidden Modals Above This ---------------------------------------------------------->
+    <!-- Footer -->
+    <div class="footer">
+        &nbsp;
+    </div>
+</body>
+</html>
