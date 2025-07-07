@@ -68,6 +68,9 @@ async function handleClick(action, event) {
             case 'help':
                 window.location.href = 'Help.html';
                 break;
+            case 'about':
+                window.location.href = 'About.html';
+                break;
             case 'trim-clean-selected':
                 trimCleanSelected();
                 break;

@@ -13,13 +13,13 @@
   <Id>1bad63a3-2f2f-4f06-8a42-7c8a0e6f526c</Id>
 
   <Version>1.0.0.0</Version>
-	<ProviderName>QTL</ProviderName>
+	<ProviderName>Luigi Anthony</ProviderName>
 	<DefaultLocale>en-US</DefaultLocale>
 	<!-- The display name of your add-in. Used on the store and various places of the Office UI such as the add-ins dialog. -->
 	<DisplayName DefaultValue="Quick Tools (Lite)" />
 	<Description DefaultValue="XLQuickToolsLite"/>
 	<!-- Icon for your add-in. Used on installation screens and the add-ins dialog. -->
-	<IconUrl DefaultValue="~remoteAppUrl/Images/QTLogo_32.png" />
+	<IconUrl DefaultValue="https://xlquicktools-liteweb20250706141600-hwhfgxeghudfeva8.canadacentral-01.azurewebsites.net/Images/QTLogo_32.png" />
 
 	<SupportUrl DefaultValue="https://github.com/lsementa/XLQuickTools-Lite" />
 	<!-- Domains that will be allowed when navigating. For example, if you use ShowTaskpane and then have an href link, navigation will only be allowed if the domain is on this list. -->
@@ -33,7 +33,7 @@
 		<Host Name="Workbook" />
 	</Hosts>
 	<DefaultSettings>
-		<SourceLocation DefaultValue="~remoteAppUrl/Menu.html" />
+		<SourceLocation DefaultValue="https://xlquicktools-liteweb20250706141600-hwhfgxeghudfeva8.canadacentral-01.azurewebsites.net/Menu.html" />
 	</DefaultSettings>
 	<!-- End TaskPane Mode integration.  -->
 
@@ -91,12 +91,12 @@
 
 		<Resources>
 			<bt:Images>
-				<bt:Image id="QT.tpicon_16x16" DefaultValue="~remoteAppUrl/Images/Button16x16.png" />
-				<bt:Image id="QT.tpicon_32x32" DefaultValue="~remoteAppUrl/Images/QTLogo_32.png" />
-				<bt:Image id="QT.tpicon_80x80" DefaultValue="~remoteAppUrl/Images/QTLogo_80.png" />
+				<bt:Image id="QT.tpicon_16x16" DefaultValue="https://xlquicktools-liteweb20250706141600-hwhfgxeghudfeva8.canadacentral-01.azurewebsites.net/Images/Button16x16.png" />
+				<bt:Image id="QT.tpicon_32x32" DefaultValue="https://xlquicktools-liteweb20250706141600-hwhfgxeghudfeva8.canadacentral-01.azurewebsites.net/Images/QTLogo_32.png" />
+				<bt:Image id="QT.tpicon_80x80" DefaultValue="https://xlquicktools-liteweb20250706141600-hwhfgxeghudfeva8.canadacentral-01.azurewebsites.net/Images/QTLogo_80.png" />
 			</bt:Images>
 			<bt:Urls>
-				<bt:Url id="QT.Taskpane.Url" DefaultValue="~remoteAppUrl/Menu.html" />
+				<bt:Url id="QT.Taskpane.Url" DefaultValue="https://xlquicktools-liteweb20250706141600-hwhfgxeghudfeva8.canadacentral-01.azurewebsites.net/Menu.html" />
 				<bt:Url id="QT.GetStarted.LearnMoreUrl" DefaultValue="https://go.microsoft.com/fwlink/?LinkId=276812" />
 			</bt:Urls>
 			<bt:ShortStrings>

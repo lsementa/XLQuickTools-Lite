@@ -1,0 +1,62 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <title>Help</title>
+
+    <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js" type="text/javascript"></script>
+    <!-- To enable offline debugging using a local reference to Office.js, use:  -->
+    <!-- <script src="Scripts/Office/1/office.js" type="text/javascript"></script>  -->
+    <!-- Scripts -->
+    <script src="/Scripts/Menu.js" type="text/javascript"></script>
+
+    <!-- Style Sheets -->
+    <link href="/Content/Menu.css" rel="stylesheet" type="text/css" />
+    <link href="/Content/Modal.css" rel="stylesheet" type="text/css" />
+    <link href="/Content/Help.css" rel="stylesheet" type="text/css" />
+
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <button class="header-button" onclick="toggleDropdown(this)">
+            <img src="/Images/Menu.png" alt="Menu">
+        </button>
+        <div class="header-dropdown-menu">
+            <div onclick="handleClick('about')">
+                <img src="/Images/Information.png" class="icon" alt="">About
+            </div>
+            <div onclick="handleClick('help')">
+                <img src="/Images/Guide.png" class="icon" alt="">User Guide
+            </div>
+            <div onclick="handleClick('home')">
+                <img src="/Images/Home.png" class="icon" alt="">Main Menu
+            </div>
+        </div>
+        <div class="header-separator"></div>
+        <div class="header-title">About</div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="help-section">
+            <img src="/Images/QTLogo_80.png" width="50" height="50" alt="">
+            <h2>Quick Tools (Lite)</h2>
+            <p>
+                A open source cross-platform Excel Add-In with some of my commonly used productivity tools. <a href="https://github.com/lsementa/XLQuickTools-Lite" target="_blank">XLQuickTools-Lite</a> is licensed under the MIT License.
+            </p>
+
+            <h3>Report Issues</h3>
+            <p><a href="https://github.com/lsementa/XLQuickTools-Lite/issues" target="_blank">Click here</a> to report any bugs or issues.</p>
+        </div>
+
+
+
+    </div>
+    <!-- Footer -->
+    <div class="footer">
+        &nbsp;
+    </div>
+</body>
+</html>
