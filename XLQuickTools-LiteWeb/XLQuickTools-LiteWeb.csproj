@@ -198,7 +198,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Menu.html" />
-    <Content Include="Scripts\App.js" />
+    <Content Include="Scripts\formatting-functions.js" />
+    <Content Include="Scripts\data-analysis-functions.js" />
+    <Content Include="Scripts\date-functions.js" />
     <Content Include="Scripts\embedded\1.0\visio-web-embedded.debug.js" />
     <Content Include="Scripts\embedded\1.0\visio-web-embedded.js" />
     <Content Include="Scripts\Menu.js" />
@@ -636,6 +638,7 @@
     <Content Include="Scripts\Office\metadata\endpoints.xml" />
     <Content Include="Scripts\Office\metadata\features.xml" />
     <Content Include="Scripts\Office\MicrosoftAjax.js" />
+    <Content Include="Scripts\excel-range-functions.js" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>

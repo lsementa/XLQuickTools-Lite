@@ -1,7 +1,6 @@
 ﻿// --- Modal Control Functions ---
 // Modal.js
 
-
 Office.onReady(() => {
     // On Ready
 });
