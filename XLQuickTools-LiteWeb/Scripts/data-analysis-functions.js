@@ -68,19 +68,19 @@ async function countUniqueValuesInColumn() {
                 <table style="width:100%; border-collapse: collapse;">
                     <tr>
                         <td style="padding: 3px 0; padding-left: 30px;">Unique Values:</td>
-                        <td style="padding: 3px 0; text-align: center; padding-right: 30px">${uniqueCount}</td>
+                        <td style="padding: 3px 0; text-align: center; padding-right: 30px">${uniqueCount.toLocaleString()}</td>
                     </tr>
                     <tr>
                         <td style="padding: 3px 0; padding-left: 30px;">Total Non-Blank Cells:</td>
-                        <td style="padding: 3px 0; text-align: center; padding-right: 30px">${totalNonBlankCells}</td>
+                        <td style="padding: 3px 0; text-align: center; padding-right: 30px">${totalNonBlankCells.toLocaleString()}</td>
                     </tr>
                     <tr>
                         <td style="padding: 3px 0; padding-left: 30px;">Total Blank Cells:</td>
-                        <td style="padding: 3px 0; text-align: center; padding-right: 30px">${totalBlankCells}</td>
+                        <td style="padding: 3px 0; text-align: center; padding-right: 30px">${totalBlankCells.toLocaleString()}</td>
                     </tr>
                     <tr>
                         <td style="padding: 3px 0; padding-left: 30px;">Total Rows with Data:</td>
-                        <td style="padding: 3px 0; text-align: center; padding-right: 30px">${fillRange.rowCount}</td>
+                        <td style="padding: 3px 0; text-align: center; padding-right: 30px">${fillRange.rowCount.toLocaleString()}</td>
                     </tr>
                 </table>`,
                 false

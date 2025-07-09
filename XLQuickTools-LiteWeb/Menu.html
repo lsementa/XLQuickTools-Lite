@@ -71,7 +71,7 @@
             <!-- Full Dropdown Button: Text Options -->
             <div class="full-dropdown-button" onclick="toggleDropdown(this)">
                 <img src="/Images/TextOptions.png" class="icon" alt="">
-                <span class="label">Text Options</span>
+                <span class="label">Text Tools</span>
                 <img src="/Images/down-arrow.png" class="caret-icon" alt="▼" />
                 <div class="dropdown-menu">
                     <div onclick="handleClick('text-add-leadtrail')">
@@ -95,10 +95,13 @@
                     <div onclick="handleClick('text-remove-special')">
                         <img src="/Images/Special.png" class="icon" alt="">Remove Special [~!@#$%^&]
                     </div>
+                    <div onclick="handleClick('subscript-numbers')">
+                        <img src="/Images/Subscript.png" class="icon" alt="">Subscript Numbers (Unicode)
+                    </div>
                 </div>
             </div>
 
-            <!-- Normal Button: Date/Text Converter -->
+            <!-- Normal Button: Date/Text Converter --> 
             <div class="menu-item" onclick="handleClick('date-converter')">
                 <img src="/Images/DateConvert.png" class="icon" alt="Selection to Clipboard" />
                 <span>Date/Text Converter</span>
@@ -107,7 +110,7 @@
             <!-- Full Dropdown Button: Rows & Columns -->
             <div class="full-dropdown-button" onclick="toggleDropdown(this)">
                 <img src="/Images/Column.png" class="icon" alt="">
-                <span class="label">Empty Cells</span>
+                <span class="label">Cell Tools</span>
                 <img src="/Images/down-arrow.png" class="caret-icon" alt="▼" />
                 <div class="dropdown-menu">
                     <div onclick="handleClick('delete-empty-rows')">
@@ -115,6 +118,9 @@
                     </div>
                     <div onclick="handleClick('delete-empty-columns')">
                         <img src="/Images/DeleteColumns.png" class="icon" alt="">Delete Empty Columns
+                    </div>
+                    <div onclick="handleClick('copy-highlighted')">
+                        <img src="/Images/CopyHighlighted.png" class="icon" alt="">Copy Highlighted Cells
                     </div>
                     <div onclick="handleClick('fill-down')">
                         <img src="/Images/FillDown.png" class="icon" alt="">Fill Down

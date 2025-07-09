@@ -13,8 +13,12 @@ const TextTransformOption = {
     PROPERCASE: 'PROPERCASE',
     REMOVE_LETTERS: 'REMOVE_LETTERS',
     REMOVE_NUMBERS: 'REMOVE_NUMBERS',
-    REMOVE_SPECIAL: 'REMOVE_SPECIAL'
+    REMOVE_SPECIAL: 'REMOVE_SPECIAL',
+    SUBSCRIPT_UNICODE: 'SUBSCRIPT_UNICODE'
 };
+
+// For large data processing
+const CHUNK_SIZE = 10000;
 
 // Clean string
 function cleanString(inputString) {
@@ -62,6 +66,12 @@ function transformText(input, option) {
             return input.replace(/[0-9]/g, '');
         case TextTransformOption.REMOVE_SPECIAL:
             return input.replace(/[^a-zA-Z0-9\u00C0-\u024F\s]/gu, '');
+        case TextTransformOption.SUBSCRIPT_UNICODE:
+            const subscriptMap = {
+                '0': '₀', '1': '₁', '2': '₂', '3': '₃', '4': '₄',
+                '5': '₅', '6': '₆', '7': '₇', '8': '₈', '9': '₉'
+            };
+            return input.replace(/[0-9]/g, char => subscriptMap[char] || char);
         default:
             console.warn(`Unknown transformation option: ${option}. Returning original input.`);
             return input;
@@ -579,417 +589,200 @@ async function addLeaadTrail(leadingText, trailingText) {
     });
 }
 
-
-/*// Convert dates
-async function convertSelectedDates(currentLocale, convertLocale, format, type) {
+// Copy highlighted cells to clipboard - optimized for large ranges
+async function copyHighlightedClipboard() {
     await Excel.run(async (context) => {
-        const selectedRange = context.workbook.getSelectedRange();
-        const effectiveRange = await getEffectiveRangeForSelection(context, selectedRange);
+        try {
+            const selectedRange = context.workbook.getSelectedRange();
+            selectedRange.load("address");
+            await context.sync();
 
-        if (!effectiveRange) {
-            showModalMessage("", "No effective range found for the current selection.", false);
-            return;
-        }
-
-        // Load values and numberFormat
-        effectiveRange.load("values, numberFormat");
-        await context.sync();
-
-        const values = effectiveRange.values;
-        const numberFormats = effectiveRange.numberFormat;
-        const newValues = [];
-        const newFormats = [];
-
-        for (let row = 0; row < values.length; row++) {
-            const newRow = [];
-            const formatRow = [];
-
-            for (let col = 0; col < values[row].length; col++) {
-                const cellValue = values[row][col];
-                let convertedResult;
-
-                // Call the Excel built-in function conversion methods
-                if (type === "text") {
-                    convertedResult = await convertToText(context, cellValue, format, currentLocale);
-                } else {
-                    convertedResult = await convertToSerial(context, cellValue, format, currentLocale);
-                }
-
-                newRow.push(convertedResult.value);
-                formatRow.push(convertedResult.format);
+            if (!selectedRange || selectedRange.address === null || selectedRange.address === "") {
+                showModalMessage("Copy Highlighted Cells", "Please select cells to copy.", false);
+                return;
             }
-            newValues.push(newRow);
-            newFormats.push(formatRow);
+
+            // Get the effective range
+            const effectiveRange = await getEffectiveRangeForSelection(context, selectedRange);
+
+            // Load address and dimensions first
+            effectiveRange.load("address, rowCount, columnCount");
+            await context.sync();
+
+            const rowCount = effectiveRange.rowCount;
+            const columnCount = effectiveRange.columnCount;
+            const totalCells = rowCount * columnCount;
+
+            // For very large ranges, process in chunks
+            if (totalCells > CHUNK_SIZE) {
+                clipboardText = await processLargeRangeInChunks(context, effectiveRange, rowCount, columnCount);
+            } else {
+                clipboardText = await processSmallRange(context, effectiveRange, rowCount, columnCount);
+            }
+
+            // Copy to clipboard
+            if (clipboardText) {
+                try {
+                    await navigator.clipboard.writeText(clipboardText);
+                    showModalMessage("Copy Highlighted Cells", `Copied ${clipboardText.split('\n').length} lines to clipboard.`, false);
+                } catch (err) {
+                    console.error("Failed to copy to clipboard:", err);
+                    showModalMessage("Copy Highlighted Cells", "Failed to copy to clipboard", true);
+                }
+            } else {
+                showModalMessage("Copy Highlighted Cells", "No highlighted cells found to copy.", false);
+            }
+
+        } catch (error) {
+            console.error("Error copying cell values:", error);
+            showModalMessage("Copy Highlighted Cells", `Error copying cells: ${error.message || error}`, true);
         }
-
-        // Apply new number formats first.
-        effectiveRange.numberFormat = newFormats;
-        await context.sync();
-
-        // Then apply the new values.
-        effectiveRange.values = newValues;
-        await context.sync();
     });
 }
 
-// Format text using Excels built in function
-async function convertToText(context, value, format, currentLocale) {
-    if (value == null || value === undefined || value === "") {
-        return { value: value, format: "@" }; // Return original empty value, format as text
-    }
-
-    let serialDate;
-    if (typeof value === "number") {
-        // If it's already a serial number, use it directly
-        serialDate = value;
-    } else if (typeof value === "string") {
-        // If it's a string, try to parse it into an Excel serial date
-        try {
-            const dateValueResult = context.workbook.functions.datevalue(value);
-            dateValueResult.load('value');
-            await context.sync();
-            serialDate = dateValueResult.value;
-
-            // Check for DATEVALUE error (e.g., #VALUE! error in Excel)
-            if (typeof serialDate !== 'number' || isNaN(serialDate)) {
-                console.warn(`Could not convert string "${value}" to date serial using DATEVALUE.`);
-                return { value: value, format: "@" };
-            }
-        } catch (error) {
-            console.error(`Error parsing string "${value}" to serial date:`, error);
-            return { value: value, format: "@" }; // On error, return original value as text
-        }
-    } else {
-        return { value: value, format: "@" };
-    }
-
-    // Now format the serial date as text using the TEXT function
-    const formattedTextResult = context.workbook.functions.text(serialDate, format);
-    formattedTextResult.load('value');
+// Process small ranges for copy highlighted to clipboard
+async function processSmallRange(context, effectiveRange, rowCount, columnCount) {
+    effectiveRange.load("text, format/fill/color");
     await context.sync();
 
-    // The TEXT function also returns an error string (e.g., #VALUE!) if input is invalid.
-    if (typeof formattedTextResult.value !== 'string' || formattedTextResult.value.startsWith('#')) {
-        console.warn(`TEXT function failed to format serial ${serialDate} with format "${format}". Result: ${formattedTextResult.value}`);
-        return { value: value, format: "@" }; // Return original value if formatting fails
-    }
+    const texts = effectiveRange.text;
+    const fillColor = effectiveRange.format.fill.color;
 
-    // console.log(`Excel Serial: ${serialDate}, Formatted to: ${formattedTextResult.value}`);
-    return { value: formattedTextResult.value, format: "@" };
+    if (fillColor === null) {
+        // Mixed formatting - get individual cell colors
+        const individualColors = [];
+
+        for (let row = 0; row < rowCount; row++) {
+            const rowColors = [];
+            for (let col = 0; col < columnCount; col++) {
+                const cell = effectiveRange.getCell(row, col);
+                cell.load("format/fill/color");
+                rowColors.push(cell);
+            }
+            individualColors.push(rowColors);
+        }
+
+        await context.sync();
+
+        const finalColors = individualColors.map(row =>
+            row.map(cell => cell.format.fill.color)
+        );
+
+        return buildClipboardText(texts, finalColors);
+    } else {
+        return buildClipboardText(texts, fillColor);
+    }
 }
 
+// Process large ranges for copy highlighted to clipboard
+async function processLargeRangeInChunks(context, effectiveRange, rowCount, columnCount) {
+    let result = "";
+    let totalProcessed = 0;
 
-// Convert to Excel serial date using built in function
-async function convertToSerial(context, value, format, currentLocale) {
-    if (value == null || value === undefined || value === "") {
-        return { value: value, format: "General" }; // Return original empty value, general format
-    }
+    // console.log(`Processing ${rowCount} rows in chunks of ${CHUNK_SIZE}...`);
 
-    if (typeof value === "number") {
-        // If it's already a serial number, return it with the desired date format
-        return { value: value, format: `${format}` };
-    } else if (typeof value === "string") {
-        try {
-            // Use DATEVALUE to convert the string to a serial number.
-            const dateValueResult = context.workbook.functions.datevalue(value);
-            dateValueResult.load('value');
+    for (let startRow = 0; startRow < rowCount; startRow += CHUNK_SIZE) {
+        const endRow = Math.min(startRow + CHUNK_SIZE - 1, rowCount - 1);
+        const chunkRowCount = endRow - startRow + 1;
+
+        // Get chunk range
+        const chunkRange = effectiveRange.getOffsetRange(startRow, 0).getResizedRange(chunkRowCount - 1, columnCount - 1);
+
+        // Load chunk data
+        chunkRange.load("text, format/fill/color");
+        await context.sync();
+
+        const chunkTexts = chunkRange.text;
+        const chunkFillColor = chunkRange.format.fill.color;
+
+        // Validate chunk data
+        if (!chunkTexts || !Array.isArray(chunkTexts) || chunkTexts.length === 0) {
+            console.log(`Warning: No valid text data in chunk rows ${startRow}-${endRow}, skipping...`);
+            continue;
+        }
+
+        let chunkColors;
+        if (chunkFillColor === null) {
+            // Mixed formatting in chunk - get individual colors
+            chunkColors = [];
+
+            for (let row = 0; row < chunkRowCount; row++) {
+                const rowColors = [];
+                for (let col = 0; col < columnCount; col++) {
+                    const cell = chunkRange.getCell(row, col);
+                    cell.load("format/fill/color");
+                    rowColors.push(cell);
+                }
+                chunkColors.push(rowColors);
+            }
+
             await context.sync();
 
-            const serialDate = dateValueResult.value;
-
-            // Check for DATEVALUE error (e.g., #VALUE! error in Excel)
-            if (typeof serialDate !== 'number' || isNaN(serialDate)) {
-                console.warn(`Could not convert string "${value}" to date serial using DATEVALUE.`);
-                return { value: value, format: "General" }; // Return original value, general format
-            }
-
-            // console.log(`String "${value}" converted to Excel Serial: ${serialDate}`);
-            // Return the serial number with a standard Excel date format
-            return { value: serialDate, format: `${format}` };
-        } catch (error) {
-            console.error(`Error parsing string "${value}" to serial date:`, error);
-            return { value: value, format: "General" }; // On error, return original value, general format
+            chunkColors = chunkColors.map(row =>
+                row.map(cell => cell.format.fill.color)
+            );
+        } else {
+            chunkColors = chunkFillColor;
         }
-    } else {
-        return { value: value, format: "General" }; // Handle other types as general
+
+        // Build clipboard text for this chunk
+        const chunkText = buildClipboardText(chunkTexts, chunkColors);
+
+        if (chunkText) {
+            if (result) {
+                result += "\n";
+            }
+            result += chunkText;
+        }
+
+        totalProcessed += chunkRowCount;
+
     }
-}*/
 
-
-
-
-// Convert dates
-/*async function convertSelectedDates(currentLocale, convertLocale, format, type) {
-    await Excel.run(async (context) => {
-        const selectedRange = context.workbook.getSelectedRange();
-        const effectiveRange = await getEffectiveRangeForSelection(context, selectedRange);
-
-        if (!effectiveRange) {
-            showModalMessage("", "No effective range found for the current selection.", false);
-            return;
-        }
-
-        // Load values and numberFormat in one go
-        effectiveRange.load("values"); // We only need values, numberFormat will be set based on conversion
-        await context.sync();
-
-        const values = effectiveRange.values;
-        const newValues = [];
-        const newFormats = [];
-
-        // Prepare a batch of Excel function calls (DATEVALUE or TEXT)
-        const functionsToExecute = [];
-        const functionCallMap = new Map(); // To link results back to original cell positions
-
-        for (let row = 0; row < values.length; row++) {
-            const newRow = [];
-            const formatRow = [];
-
-            for (let col = 0; col < values[row].length; col++) {
-                const cellValue = values[row][col];
-
-                if (cellValue == null || cellValue === undefined || cellValue === "") {
-                    // Handle empty cells directly
-                    newRow.push(cellValue);
-                    formatRow.push(type === "text" ? "@" : "General");
-                    continue;
-                }
-
-                if (type === "text") {
-                    // For converting to text
-                    if (typeof cellValue === "number") {
-                        // If already a serial number, prepare TEXT function
-                        const textResult = context.workbook.functions.text(cellValue, format);
-                        functionsToExecute.push(textResult);
-                        functionCallMap.set(textResult, { row, col, originalValue: cellValue, type: "text" });
-                    } else if (typeof cellValue === "string") {
-                        // If string, first DATEVALUE, then TEXT
-                        const dateValueResult = context.workbook.functions.datevalue(cellValue);
-                        functionsToExecute.push(dateValueResult);
-                        functionCallMap.set(dateValueResult, { row, col, originalValue: cellValue, type: "text" });
-                    } else {
-                        // Other types, just push original value as text
-                        newRow.push(cellValue);
-                        formatRow.push("@");
-                    }
-                } else { // type === "serial"
-                    // For converting to serial
-                    if (typeof cellValue === "number") {
-                        // If already a serial number, no function call needed
-                        newRow.push(cellValue);
-                        formatRow.push(format);
-                    } else if (typeof cellValue === "string") {
-                        // If string, prepare DATEVALUE function
-                        const dateValueResult = context.workbook.functions.datevalue(cellValue);
-                        functionsToExecute.push(dateValueResult);
-                        functionCallMap.set(dateValueResult, { row, col, originalValue: cellValue, type: "serial" });
-                    } else {
-                        // Other types, just push original value as general
-                        newRow.push(cellValue);
-                        formatRow.push("General");
-                    }
-                }
-            }
-            newValues.push(newRow); // Temporarily push empty rows, will fill later
-            newFormats.push(formatRow);
-        }
-
-        // Load all batched function results in one go
-        functionsToExecute.forEach(func => func.load('value'));
-        await context.sync();
-
-        // Process the results from the batched function calls
-        for (const funcResult of functionsToExecute) {
-            const { row, col, originalValue, type: conversionType } = functionCallMap.get(funcResult);
-            let convertedValue = funcResult.value;
-            let finalFormat;
-
-            if (conversionType === "text") {
-                if (typeof originalValue === "string" && !isNaN(convertedValue) && typeof convertedValue === 'number') {
-                    // This was a DATEVALUE result for a string, now we need to TEXT format it
-                    const textResult = context.workbook.functions.text(convertedValue, format);
-                    // We need another sync to get this result. This is a potential point of optimization if many strings.
-                    // For now, doing it individually for clarity, but can be batched again.
-                    textResult.load('value');
-                    await context.sync(); // **** One of the few syncs within the loop now ****
-                    convertedValue = textResult.value;
-                }
-
-                if (typeof convertedValue !== 'string' || String(convertedValue).startsWith('#')) {
-                    // If TEXT/DATEVALUE failed, revert to original value and format as text
-                    console.warn(`Conversion to text failed for "${originalValue}". Result: ${convertedValue}`);
-                    newValues[row][col] = originalValue;
-                    newFormats[row][col] = "@";
-                } else {
-                    newValues[row][col] = convertedValue;
-                    newFormats[row][col] = "@";
-                }
-            } else { // conversionType === "serial"
-                if (typeof convertedValue !== 'number' || isNaN(convertedValue) || String(convertedValue).startsWith('#')) {
-                    // If DATEVALUE failed, revert to original value and format as general
-                    console.warn(`Conversion to serial failed for "${originalValue}". Result: ${convertedValue}`);
-                    newValues[row][col] = originalValue;
-                    newFormats[row][col] = "General";
-                } else {
-                    newValues[row][col] = convertedValue;
-                    newFormats[row][col] = format;
-                }
-            }
-        }
-
-        // Apply new number formats and values in two separate, batched calls
-        effectiveRange.numberFormat = newFormats;
-        effectiveRange.values = newValues;
-        await context.sync(); // Final sync to write all changes to Excel
-
-        showModalMessage("", "Date conversion complete!", true);
-    });
-}*/
-
-// ALTERNATIVE APPROACH: Use native JavaScript date parsing for even better performance
-// This approach avoids Excel functions entirely for better speed
-/*async function convertSelectedDates(currentLocale, convertLocale, format, type) {
-    await Excel.run(async (context) => {
-        const selectedRange = context.workbook.getSelectedRange();
-        const effectiveRange = await getEffectiveRangeForSelection(context, selectedRange);
-
-        if (!effectiveRange) {
-            showModalMessage("", "No effective range found for the current selection.", false);
-            return;
-        }
-
-        effectiveRange.load("values, numberFormat");
-        await context.sync();
-
-        const values = effectiveRange.values;
-        const newValues = [];
-        const newFormats = [];
-
-        for (let row = 0; row < values.length; row++) {
-            const newRow = [];
-            const formatRow = [];
-
-            for (let col = 0; col < values[row].length; col++) {
-                const cellValue = values[row][col];
-                let convertedResult;
-
-                if (type === "text") {
-                    convertedResult = convertToText(cellValue, format);
-                } else {
-                    convertedResult = convertToSerial(cellValue, format);
-                }
-
-                newRow.push(convertedResult.value);
-                formatRow.push(convertedResult.format);
-            }
-            newValues.push(newRow);
-            newFormats.push(formatRow);
-        }
-
-        // Single batch update
-        effectiveRange.numberFormat = newFormats;
-        effectiveRange.values = newValues;
-        await context.sync();
-
-        showModalMessage("Date/Text Converter", "Date conversion complete!", false);
-    });
+    return result;
 }
 
-// Native JavaScript date conversion functions with improved parsing
-function convertToText(value, format) {
-    if (value == null || value === undefined || value === "") {
-        return { value: value, format: "@" };
+// Helper function to build clipboard text for copy highlighted to clipboard
+function buildClipboardText(texts, colors) {
+    // Validate inputs
+    if (!texts || !Array.isArray(texts) || texts.length === 0) {
+        console.log("buildClipboardText: Invalid or empty texts array");
+        return "";
     }
 
-    let date;
-    if (typeof value === "number") {
-        // Convert Excel serial date to JavaScript Date using your method
-        const msSinceEpoch = (value - 25569) * 86400000;
-        date = new Date(msSinceEpoch);
-        // Adjust to UTC midnight to avoid timezone discrepancies
-        date = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
-    } else if (typeof value === "string") {
-        // Parse as date string using your method
-        date = new Date(value);
-        if (isNaN(date.getTime())) {
-            return { value: value, format: "@" };
+    const result = [];
+    const isUniformColor = typeof colors === 'string' || colors === null;
+
+    for (let row = 0; row < texts.length; row++) {
+        // Validate row data
+        if (!texts[row] || !Array.isArray(texts[row])) {
+            console.log(`buildClipboardText: Invalid row data at row ${row}`);
+            continue;
         }
-        date = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
-    } else {
-        return { value: value, format: "@" };
+
+        const rowContent = [];
+
+        for (let col = 0; col < texts[row].length; col++) {
+            const cellText = texts[row][col];
+            const cellColor = isUniformColor ? colors : (colors && colors[row] && colors[row][col]) || null;
+
+            // Skip empty cells OR cells with no fill color (white/default)
+            if (!cellText || cellText.trim() === "" || !cellColor || cellColor === 'null' || cellColor === '#FFFFFF') {
+                continue;
+            }
+
+            // Only cells with actual fill colors reach this point
+            rowContent.push(cellText);
+        }
+
+        // Only add the row if it has content
+        if (rowContent.length > 0) {
+            result.push(rowContent.join('\t'));
+        }
     }
 
-    // Format the date using your formatting logic
-    const formattedDate = formatDateToString(date, format);
-    return { value: formattedDate, format: "@" };
+    return result.join('\n');
 }
 
-function convertToSerial(value, format) {
-    if (value == null || value === undefined || value === "") {
-        return { value: value, format: "General" };
-    }
 
-    if (typeof value === "number") {
-        return { value: value, format: format };
-    } else if (typeof value === "string") {
-        // Parse as date string using your method
-        const date = new Date(value);
-        if (isNaN(date.getTime())) {
-            return { value: value, format: "General" };
-        }
-        // Adjust to UTC midnight to avoid timezone discrepancies
-        const adjustedDate = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
-        const jsSerial = adjustedDate.getTime() / 86400000;
-        const excelSerial = Math.round(jsSerial + 25569);
-        return { value: excelSerial, format: format };
-    } else {
-        return { value: value, format: "General" };
-    }
-}
 
-function formatDateToString(date, format) {
-    const year = date.getUTCFullYear();
-    const month = date.getUTCMonth() + 1;
-    const day = date.getUTCDate();
-
-    // Month names
-    const monthNames = [
-        "January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December"
-    ];
-    const monthNamesShort = [
-        "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-    ];
-
-    // Format mapping based on your format options
-    switch (format) {
-        case "yyyy-MM-dd":
-            return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-        case "M/d/yyyy":
-            return `${month}/${day}/${year}`;
-        case "MM/dd/yyyy":
-            return `${String(month).padStart(2, '0')}/${String(day).padStart(2, '0')}/${year}`;
-        case "dd/MM/yyyy":
-            return `${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}/${year}`;
-        case "d/M/yyyy":
-            return `${day}/${month}/${year}`;
-        case "MMM dd, yyyy":
-            return `${monthNamesShort[month - 1]} ${String(day).padStart(2, '0')}, ${year}`;
-        case "MMMM dd, yyyy":
-            return `${monthNames[month - 1]} ${String(day).padStart(2, '0')}, ${year}`;
-        case "dd MMM yyyy":
-            return `${String(day).padStart(2, '0')} ${monthNamesShort[month - 1]} ${year}`;
-        case "dd MMMM yyyy":
-            return `${String(day).padStart(2, '0')} ${monthNames[month - 1]} ${year}`;
-        case "yyyy/MM/dd":
-            return `${year}/${String(month).padStart(2, '0')}/${String(day).padStart(2, '0')}`;
-        case "yyyy.MM.dd":
-            return `${year}.${String(month).padStart(2, '0')}.${String(day).padStart(2, '0')}`;
-        case "yyyy MMM dd":
-            return `${year} ${monthNamesShort[month - 1]} ${String(day).padStart(2, '0')}`;
-        default:
-            // Default to yyyy-MM-dd if format not recognized
-            return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    }
-}*/

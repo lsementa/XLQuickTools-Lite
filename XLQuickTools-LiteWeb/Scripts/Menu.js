@@ -98,6 +98,9 @@ async function handleClick(action, event) {
             case 'text-remove-special':
                 getTextOptions(TextTransformOption.REMOVE_SPECIAL);
                 break;
+            case 'subscript-numbers':
+                getTextOptions(TextTransformOption.SUBSCRIPT_UNICODE);
+                break;
             case 'text-add-leadtrail':
                 showAddLeadTrailModal();
                 break;
@@ -124,6 +127,9 @@ async function handleClick(action, event) {
                 break;
             case 'toggle-autofilter':
                 toggleAutoFilter();
+                break;
+            case 'copy-highlighted':
+                copyHighlightedClipboard();
                 break;
             case 'unique-count':
                 countUniqueValuesInColumn();
