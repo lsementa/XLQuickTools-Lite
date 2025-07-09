@@ -478,13 +478,29 @@ function showDateTextModal() {
     if (modal && currentLocale && convertLocale && convertFormat && convertType) {
         modal.classList.add('show-modal');
 
+        // Get the user's current locale
+        let userLocale = navigator.language || navigator.languages[0] || 'en-US'; // Fallback to 'en-US'
+
+        // Extract the language code (e.g., "en" from "en-US")
+        let localeCode = userLocale.split('-')[0].toUpperCase();
+
+        // Determine the locale to set
+        let initialLocale;
+        // Check for 'US' code or full 'en-US'
+        if (localeCode === 'US' || userLocale.includes('en-US')) {
+            initialLocale = 'US';
+        } else {
+            // If not US, set to Other
+            initialLocale = 'Other';
+        }
+
         // Set defaults
-        currentLocale.value = 'US';
-        convertLocale.value = 'US';
+        currentLocale.value = initialLocale;
+        convertLocale.value = initialLocale;
         convertType.value = 'text';
 
         // Populate convertFormat based on US locale
-        updateFormatOptions('US');
+        updateFormatOptions(initialLocale);
 
     } else {
         console.error("Modal element 'dateTextModal' not found.");
