@@ -195,7 +195,7 @@ async function fillBlanksFromAbove() {
             fillRange.load("values, numberFormat");
             await context.sync();
 
-            // Pass the to the undo manager
+            // Pass the values to the undo manager
             const worksheetName = fillRange.worksheet.name;
             const rangeAddress = fillRange.address;
             const originalValues = fillRange.values;
@@ -589,7 +589,7 @@ async function applyTextOptionsToSelection(context, option) {
         effectiveRange.load("values, numberFormat");
         await context.sync();
 
-        // Pass the to the undo manager
+        // Pass the values to the undo manager
         const worksheetName = effectiveRange.worksheet.name;
         const rangeAddress = effectiveRange.address;
         const originalValues = effectiveRange.values;
@@ -628,7 +628,7 @@ async function addLeaadTrail(leadingText, trailingText) {
         effectiveRange.load("values, numberFormat");
         await context.sync();
 
-        // Pass the to the undo manager
+        // Pass the values to the undo manager
         const worksheetName = effectiveRange.worksheet.name;
         const rangeAddress = effectiveRange.address;
         const originalValues = effectiveRange.values;
@@ -847,5 +847,170 @@ function buildClipboardText(texts, colors) {
     return result.join('\n');
 }
 
+// Remove excess formatting
+async function removeExcess() {
+    try {
+        await Excel.run(async (context) => {
+            const worksheet = context.workbook.worksheets.getActiveWorksheet();
 
+            // Find the actual last row and column with data (not just formatting)
+            const { lastDataRow, lastDataColumn } = await findLastDataCell(worksheet, context);
 
+            // Get worksheet dimensions
+            const worksheetRange = worksheet.getRange();
+            worksheetRange.load(['rowCount', 'columnCount']);
+            await context.sync();
+
+            const totalRows = worksheetRange.rowCount;
+            const totalColumns = worksheetRange.columnCount;
+
+            // Clear excess rows
+            if (lastDataRow < totalRows) {
+                const startRowIndex = lastDataRow; // 0-based index
+                const rowCount = totalRows - lastDataRow;
+
+                // Get range
+                const rowsToClear = worksheet.getRangeByIndexes(startRowIndex, 0, rowCount, totalColumns);
+                // Clear just formatting on rows
+                rowsToClear.clear(Excel.ClearApplyTo.formats);
+            }
+
+            // Clear excess columns
+            if (lastDataColumn < totalColumns) {
+                const startColumnIndex = lastDataColumn; // 0-based index
+                const columnCount = totalColumns - lastDataColumn;
+
+                // Get range
+                const columnsToClear = worksheet.getRangeByIndexes(0, startColumnIndex, totalRows, columnCount);
+                // Clear just formatting on columns
+                columnsToClear.clear(Excel.ClearApplyTo.formats);
+            }
+
+            await context.sync();
+            showModalMessage("Remove Excess Formatting", `Cleared any excess formatting beyond Column ${getColumnLetter(lastDataColumn-1)} and Row ${lastDataRow}.`, false);
+        });
+    } catch (error) {
+        console.error("Remove Excess:", error);
+        showModalMessage("Remove Excess Formatting", "An error occurred while removing excess formatting. Please try again.", false);
+    }
+}
+
+// Remove hyperlinks (both cell-based and formula)
+async function removeHyperlinks() {
+    try {
+        await Excel.run(async (context) => {
+            const selectedRange = context.workbook.getSelectedRange();
+            const effectiveRange = await getEffectiveRangeForSelection(context, selectedRange);
+
+            // Load all the properties that will be used
+            effectiveRange.load("values, formulas");
+            effectiveRange.format.load("font");
+            await context.sync();
+
+            // Remove hyperlinks by clearing formulas first, then setting values
+            const formulas = effectiveRange.formulas;
+            const values = effectiveRange.values;
+
+            // Create cleaned formulas (remove HYPERLINK formulas)
+            const cleanedFormulas = formulas.map(row => row.map(cell => {
+                if (typeof cell === 'string' && cell.startsWith('=') && cell.toUpperCase().includes('HYPERLINK')) {
+                    return ''; // Clear HYPERLINK formulas
+                }
+                return cell;
+            }));
+
+            // Apply changes
+            effectiveRange.formulas = cleanedFormulas;
+            effectiveRange.values = values;
+
+            // Clear cell-based hyperlinks
+            effectiveRange.clear(Excel.ClearApplyTo.hyperlinks);
+            await context.sync();
+
+            // Remove hyperlink formatting: reset font underline and color
+            effectiveRange.format.font.underline = Excel.RangeUnderlineStyle.none;
+            effectiveRange.format.font.color = "#000000"; // Set to black
+            await context.sync();
+
+            showModalMessage("Remove Hyperlinks", "All formula and cell-based hyperlinks have been removed.", false);
+
+        });
+    } catch (error) {
+        console.error("Remove Hyperlinks:", error);
+        showModalMessage("Remove Hyperlinks", "An error occurred while removing hyperlinks. Please try again.", false);
+    }
+}
+
+// Add Hyperlinks to the selected range
+async function addHyperlinks(url, headers) {
+    await Excel.run(async (context) => {
+        const selectedRange = context.workbook.getSelectedRange();
+        const effectiveRange = await getEffectiveRangeForSelection(context, selectedRange);
+        if (!effectiveRange) {
+            showModalMessage("", "No effective range found for the current selection.", false);
+            return;
+        }
+
+        // Load the necessary properties from effectiveRange for undo and iteration
+        effectiveRange.load("rowCount, columnCount, values");
+        await context.sync();
+
+        // Add Hyperlinks
+        const rowCount = effectiveRange.rowCount;
+        const columnCount = effectiveRange.columnCount;
+        const originalValues = effectiveRange.values;
+
+        // Build the formulas array
+        const formulasArray = [];
+
+        // Determine the starting row for iteration based on 'headers' checkbox
+        const startRow = headers ? 1 : 0;
+
+        for (let i = 0; i < rowCount; i++) {
+            const row = [];
+            for (let j = 0; j < columnCount; j++) {
+                // If headers are present and it's the first row, just copy the original value
+                if (headers && i === 0) {
+                    row.push(originalValues[i][j]);
+                    continue;
+                }
+
+                const cellValue = originalValues[i][j] || "";
+
+                // Replace {ID} or {id} in the URL with the cell's value if present
+                let dynamicUrl = url.replace(/{ID}|{id}/gi, cellValue);
+
+                // Ensure the URL has a protocol for the HYPERLINK function to work reliably
+                if (!dynamicUrl.startsWith("http://") && !dynamicUrl.startsWith("https://")) {
+                    dynamicUrl = "https://" + dynamicUrl;
+                }
+
+                // Determine display text
+                let dynamicDisplayText = cellValue;
+                // Ensure display text is a string and escape double quotes for the formula
+                dynamicDisplayText = String(dynamicDisplayText || "").replace(/"/g, '""');
+
+                // Construct the HYPERLINK formula for the current cell
+                const hyperlinkFormula = `=HYPERLINK("${dynamicUrl}","${dynamicDisplayText}")`;
+                row.push(hyperlinkFormula);
+            }
+            formulasArray.push(row);
+        }
+
+        // Set all formulas at once using the formulas property
+        effectiveRange.formulas = formulasArray;
+
+        try {
+            await context.sync();
+
+            // Check if formulas were actually set (optional, good for debugging/confirmation)
+            effectiveRange.load("formulas");
+            await context.sync();
+
+            showModalMessage("Add Hyperlinks", "Hyperlinks added successfully!", false);
+        } catch (error) {
+            showModalMessage("Error", `Failed to add hyperlinks: ${error.message}`, true);
+            console.error("Failed to add hyperlinks:", error);
+        }
+    });
+}

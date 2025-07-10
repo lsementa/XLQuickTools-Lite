@@ -97,6 +97,15 @@ async function findAndCountDuplicatesInColumn() {
     await Excel.run(async (context) => {
         const selectedRange = context.workbook.getSelectedRange();
 
+        // Check if entire column is selected
+        selectedRange.load("isEntireColumn");
+        await context.sync();
+
+        if (!selectedRange.isEntireColumn) {
+            showModalMessage("Check for Duplicates", "Please select an entire column to use.", false);
+            return;
+        }
+
         const effectiveRange = await getEffectiveRangeForSelection(context, selectedRange);
 
         if (!effectiveRange) {

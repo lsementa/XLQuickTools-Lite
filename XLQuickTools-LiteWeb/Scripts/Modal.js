@@ -152,6 +152,48 @@ async function onAddLeadTrailOk() {
     }
 }
 
+// Show the "Add Hyperlinks" modal
+function showAddHyperlinksModal() {
+    const modal = document.getElementById('addHyperlinksModal');
+    const url = document.getElementById('url');
+    const headers = document.getElementById('URLheaders');
+
+    if (modal) {
+        modal.classList.add('show-modal');
+        // Clear inputs and focus when showing
+        url.value = '';
+        headers.checked = true;
+        // Focus on the first input
+        url.focus();
+    }
+}
+
+// Hide the "Add Hyperlinks" modal
+function hideAddHyperlinksModal() {
+    const modal = document.getElementById('addHyperlinksModal');
+    if (modal) {
+        modal.classList.remove('show-modal');
+    }
+}
+
+// OK button clicked on the "Add Hyperlinks" modal
+async function onAddHyperlinksOk() {
+    const url = document.getElementById('url').value;
+    const headers = document.getElementById('URLheaders').checked;
+
+    //console.log(`Modal OK clicked. URL: "${url}", Display Text: "${displayText}"`);
+    hideAddHyperlinksModal();
+
+    // Run
+    try {
+        if (url) {
+            await addHyperlinks(url, headers);
+        }
+    } catch (error) {
+        console.error("Error adding URLs:", error);
+    }
+}
+
 // Hide the "Selection Plus" modal
 function hideSelectionPlusModal() {
     const modal = document.getElementById('selectionPlusModal');
@@ -573,6 +615,35 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     } else {
         console.error("Add Lead/Trail Modal Overlay not found.");
+    }
+
+    // --- Listeners for 'Add Hyperlinks' Modal ---
+
+    const addHyperlinksOkButton = document.getElementById('addHyperlinksOkButton');
+    const addHyperlinksCancelButton = document.getElementById('addHyperlinksCancelButton');
+    const addHyperlinksModalOverlay = document.getElementById('addHyperlinksModal');
+
+    if (addHyperlinksOkButton) {
+        addHyperlinksOkButton.addEventListener('click', onAddHyperlinksOk);
+    } else {
+        console.error("Add Hyperlinks OK button not found.");
+    }
+
+    if (addHyperlinksCancelButton) {
+        addHyperlinksCancelButton.addEventListener('click', hideAddHyperlinksModal);
+    } else {
+        console.error("Add Hyperlinks Cancel button not found.");
+    }
+
+    // Close modal if clicking on the overlay (outside the content box)
+    if (addHyperlinksModalOverlay) {
+        addHyperlinksModalOverlay.addEventListener('click', (event) => {
+            if (event.target === addHyperlinksModalOverlay) {
+                hideAddHyperlinksModal();
+            }
+        });
+    } else {
+        console.error("Add Hyperlinks Modal Overlay not found.");
     }
 
     // --- Listeners for 'Selection Plus' Modal ---

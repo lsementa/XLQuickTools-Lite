@@ -102,6 +102,9 @@ async function handleClick(action, event) {
             case 'trim-clean-workbook':
                 trimCleanWorkbook();
                 break;
+            case 'remove-excess':
+                removeExcess();
+                break;
             case 'text-uppercase':
                 getTextOptions(TextTransformOption.UPPERCASE);
                 break;
@@ -134,6 +137,12 @@ async function handleClick(action, event) {
                 break;
             case 'delete-empty-columns':
                 deleteEmptyColumns();
+                break;
+            case 'remove-hyperlinks':
+                removeHyperlinks();
+                break;
+            case 'add-hyperlinks':
+                showAddHyperlinksModal();
                 break;
             case 'fill-down':
                 fillBlanksFromAbove();

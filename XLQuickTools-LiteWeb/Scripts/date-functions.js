@@ -25,13 +25,11 @@ async function convertSelectedDates(currentLocale, convertLocale, format, type) 
         undoRange.load("values, numberFormat");
         await context.sync();
 
-        // Pass the to the undo manager
+        // Pass the values to the undo manager
         const worksheetName = undoRange.worksheet.name;
         const rangeAddress = undoRange.address;
         const originalValues = undoRange.values;
         const originalNumberFormat = undoRange.numberFormat;
-
-        console.log("Are you getting here? " + rangeAddress);
 
         // Store the current state BEFORE making changes
         await undoManager.copyAndStoreFormat(worksheetName, rangeAddress, originalValues, originalNumberFormat);
@@ -75,7 +73,6 @@ async function convertSelectedDates(currentLocale, convertLocale, format, type) 
         }
 
         showModalMessage("Date/Text Converter", "Date conversion complete!", false);
-
 
     });
 }
@@ -181,6 +178,7 @@ function formatDateToString(date, format) {
     }
 }
 
+// Verion using Excel functions -----------------
 // Convert dates
 /*async function convertSelectedDates(currentLocale, convertLocale, format, type) {
     await Excel.run(async (context) => {

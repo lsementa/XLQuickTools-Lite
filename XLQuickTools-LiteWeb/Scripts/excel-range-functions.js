@@ -15,6 +15,37 @@ function getColumnLetter(columnIndex) {
     return result;
 }
 
+// Function to find the last row and column with actual data
+async function findLastDataCell(worksheet, context) {
+    // Get the used range first to limit our search area
+    const usedRange = worksheet.getUsedRange();
+    usedRange.load(['rowCount', 'columnCount', 'rowIndex', 'columnIndex', 'values']);
+    await context.sync();
+
+    const values = usedRange.values;
+    let lastDataRow = -1;
+    let lastDataColumn = -1;
+
+    // Search through the values array to find the last non-empty cell
+    for (let r = values.length - 1; r >= 0; r--) {
+        for (let c = values[r].length - 1; c >= 0; c--) {
+            const cellValue = values[r][c];
+            // Check if cell has actual data (not empty, null, or just whitespace)
+            if (cellValue !== null && cellValue !== undefined && cellValue !== "" &&
+                (typeof cellValue !== 'string' || cellValue.trim() !== "")) {
+                if (lastDataRow === -1) {
+                    lastDataRow = usedRange.rowIndex + r;
+                    lastDataColumn = usedRange.columnIndex + c;
+                    return { lastDataRow: lastDataRow + 1, lastDataColumn: lastDataColumn + 1 }; // Convert to 0-based for clearing
+                }
+            }
+        }
+    }
+
+    // If no data found, return 0
+    return { lastDataRow: 0, lastDataColumn: 0 };
+}
+
 // Get the effective used range. A better way of handling selected range
 async function getEffectiveRangeForSelection(context, selectedRange) {
     try {
