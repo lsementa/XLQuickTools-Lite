@@ -1,6 +1,6 @@
 # XLQuickTools Lite (Office 365 / Mac / Web)
 
-**Quick Tools Lite** is a lightweight, cross-platform version of my [Quick Tools](https://github.com/lsementa/XLQuickTools) VSTO Excel Add-In.
+A lightweight, cross-platform version of my [Quick Tools](https://github.com/lsementa/XLQuickTools) VSTO Excel Add-In.
 
 <div align="center">
 <img src="images/main.png" alt="Screenshot">
@@ -17,7 +17,8 @@
 
 ### Formatting Tools
 - **Trim and Clean** – Removes any leading, trailing, or extra spaces and non-printable characters from cells. Also removes two or more consecutive spaces between characters.
-- **Text Options** – Includes:
+- **Remove Excess Formatting** - Delete unnecessary formatting from rows or columns that extend beyond the data in your worksheet. This helps reduce file size and improve performance by removing potentially thousands of blank, formatted rows.
+- **Text Tools** – Includes:
   - Add Leading/Trailing Text
   - Convert to Uppercase
   - Convert to Lowercase
@@ -29,9 +30,12 @@
 
 ---
 
-### Empty Cells
+### Cell Tools
 - **Delete Empty Rows** – Removes rows with no data.
 - **Delete Empty Columns** – Removes columns with no data.
+- **Copy Highlighted Cells** - Copy any highlighted cells in a selection to clipboard.
+- **Remove Hyperlinks** - Removes both formula and cell-based hyperlinks from a selection.
+- **Add Parameterized Links** - Add hyperlinks based on a supplied parameterized URL.
 - **Fill Down** – Fills down values in empty cells based on the cell above.
 
 ---
