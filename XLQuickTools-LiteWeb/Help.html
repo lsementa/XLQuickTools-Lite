@@ -8,6 +8,7 @@
     <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js" type="text/javascript"></script>
     <!-- To enable offline debugging using a local reference to Office.js, use:  -->
     <!-- <script src="Scripts/Office/1/office.js" type="text/javascript"></script>  -->
+
     <!-- Scripts -->
     <script src="/Scripts/Menu.js" type="text/javascript"></script>
 
@@ -24,14 +25,17 @@
             <img src="/Images/Menu.png" alt="Menu">
         </button>
         <div class="header-dropdown-menu">
+            <div onclick="handleClick('home')">
+                <img src="/Images/Home.png" class="icon" alt="">Home
+            </div>
             <div onclick="handleClick('about')">
                 <img src="/Images/Information.png" class="icon" alt="">About
             </div>
             <div onclick="handleClick('help')">
                 <img src="/Images/Guide.png" class="icon" alt="">User Guide
             </div>
-            <div onclick="handleClick('home')">
-                <img src="/Images/Home.png" class="icon" alt="">Main Menu
+            <div id="undoButton" class="disabled" onclick="handleClick('undo')">
+                <img src="/Images/Undo.png" class="icon" alt="">Undo
             </div>
         </div>
         <div class="header-separator"></div>
@@ -46,6 +50,7 @@
 
             <h3>Formatting Tools</h3>
             <ul>
+                <li><strong>Undo</strong> - Located under the main menu button, this restores the range to its original state. Since Excel’s Undo button doesn’t work with this add-in, a custom Undo feature was added. It works with the Date/Text Converter as well as Text and Cell Tools.</li>
                 <li><strong>Trim and Clean</strong> – Removes any leading, trailing or extra spaces and non-printable characters from cells. Removes two or more consecutive spaces between characters.</li>
                 <li>
                     <strong>Text Tools</strong> – Includes:

@@ -6,6 +6,21 @@ Office.onReady(() => {
     // On Ready
 });
 
+// Get a reference to your button element
+const undoButton = document.getElementById("undoButton");
+
+// Function to disable the undo button
+function disableUndoButton() {
+    document.getElementById('undoButton').classList.add('disabled');
+    // Hide the header dropdown
+    const dropdown = document.querySelector('.header-dropdown-menu');
+    if (dropdown) dropdown.classList.remove('show');
+}
+
+// Function to enable the undo button
+function enableUndoButton() {
+    document.getElementById('undoButton').classList.remove('disabled');
+}
 
 // Toggle the visibility of the dropdown menu
 function toggleDropdown(element, event) {
@@ -70,6 +85,13 @@ async function handleClick(action, event) {
                 break;
             case 'about':
                 window.location.href = 'About.html';
+                break;
+            case 'undo':
+                if (undoManager.canUndo()) {
+                    await undoManager.undoFormatting();
+                    // Disable after successful undo
+                    disableUndoButton();
+                }
                 break;
             case 'trim-clean-selected':
                 trimCleanSelected();
@@ -151,7 +173,6 @@ async function handleClick(action, event) {
         if (this && this.classList && this.classList.remove) {
             this.classList.remove("show");
         }
-
 
     } catch (error) {
         console.error("Menu.js: Error during Excel operation:", error);

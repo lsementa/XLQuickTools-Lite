@@ -189,8 +189,28 @@ async function fillBlanksFromAbove() {
             const selectedRange = context.workbook.getSelectedRange();
             const fillRange = await getEffectiveRangeForSelection(context, selectedRange);
 
+            // Load the necessary properties from effectiveRange for undo
+            fillRange.load("address");
+            fillRange.worksheet.load("name");
+            fillRange.load("values, numberFormat");
+            await context.sync();
+
+            // Pass the to the undo manager
+            const worksheetName = fillRange.worksheet.name;
+            const rangeAddress = fillRange.address;
+            const originalValues = fillRange.values;
+            const originalNumberFormat = fillRange.numberFormat;
+
+            // Store the current state BEFORE making changes
+            await undoManager.copyAndStoreFormat(worksheetName, rangeAddress, originalValues, originalNumberFormat);
+
             // Use the shared helper function with messages enabled
             await fillBlanksInRange(context, fillRange, true);
+
+            // Update UI: Enable undo button
+            if (undoManager.canUndo()) {
+                enableUndoButton();
+            }
         });
     } catch (error) {
         console.error("Error filling blanks:", error);
@@ -555,6 +575,7 @@ async function getTextOptions(option) {
 // Apply text options
 async function applyTextOptionsToSelection(context, option) {
     try {
+
         const selectedRange = context.workbook.getSelectedRange();
         const effectiveRange = await getEffectiveRangeForSelection(context, selectedRange);
 
@@ -562,7 +583,28 @@ async function applyTextOptionsToSelection(context, option) {
             return;
         }
 
+        // Load the necessary properties from effectiveRange for undo
+        effectiveRange.load("address");
+        effectiveRange.worksheet.load("name");
+        effectiveRange.load("values, numberFormat");
+        await context.sync();
+
+        // Pass the to the undo manager
+        const worksheetName = effectiveRange.worksheet.name;
+        const rangeAddress = effectiveRange.address;
+        const originalValues = effectiveRange.values;
+        const originalNumberFormat = effectiveRange.numberFormat;
+
+        // Store the current state BEFORE making changes
+        await undoManager.copyAndStoreFormat(worksheetName, rangeAddress, originalValues, originalNumberFormat);
+
+        // Make changes
         await processExcelRange(context, effectiveRange, (cellValue) => transformText(cellValue, option));
+
+        // Update UI: Enable undo button
+        if (undoManager.canUndo()) {
+            enableUndoButton();
+        }
 
     } catch (error) {
         console.error("Error applying text transformation:", error);
@@ -580,11 +622,32 @@ async function addLeaadTrail(leadingText, trailingText) {
             return;
         }
 
+        // Load the necessary properties from effectiveRange for undo
+        effectiveRange.load("address");
+        effectiveRange.worksheet.load("name");
+        effectiveRange.load("values, numberFormat");
+        await context.sync();
+
+        // Pass the to the undo manager
+        const worksheetName = effectiveRange.worksheet.name;
+        const rangeAddress = effectiveRange.address;
+        const originalValues = effectiveRange.values;
+        const originalNumberFormat = effectiveRange.numberFormat;
+
+        // Store the current state BEFORE making changes
+        await undoManager.copyAndStoreFormat(worksheetName, rangeAddress, originalValues, originalNumberFormat);
+
+        // Make changes
         await processExcelRange(context, effectiveRange, (cellValue) => {
             // Ensure cellValue is treated as a string before concatenation
             let processedValue = String(cellValue);
             return leadingText + processedValue + trailingText;
         });
+
+        // Update UI: Enable undo button
+        if (undoManager.canUndo()) {
+            enableUndoButton();
+        }
 
     });
 }

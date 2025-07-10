@@ -9,6 +9,12 @@
     min-height: 100vh;
 }
 
+.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+    cursor: default;
+}
+
 img.icon {
     width: 20px;
     height: 20px;
@@ -215,3 +221,6 @@ img.icon {
             margin-right: 8px;
             flex-shrink: 0;
         }
+
+
+

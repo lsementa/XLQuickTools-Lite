@@ -13,7 +13,7 @@
   <Id>1bad63a3-2f2f-4f06-8a42-7c8a0e6f526c</Id>
 
   <Version>1.0.0.0</Version>
-	<ProviderName>Luigi Anthony</ProviderName>
+	<ProviderName>QTL</ProviderName>
 	<DefaultLocale>en-US</DefaultLocale>
 	<!-- The display name of your add-in. Used on the store and various places of the Office UI such as the add-ins dialog. -->
 	<DisplayName DefaultValue="Quick Tools (Lite)" />

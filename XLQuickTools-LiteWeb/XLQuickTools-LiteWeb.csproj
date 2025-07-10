@@ -645,6 +645,7 @@
     <Content Include="Scripts\Office\metadata\features.xml" />
     <Content Include="Scripts\Office\MicrosoftAjax.js" />
     <Content Include="Scripts\excel-range-functions.js" />
+    <Content Include="Scripts\undo-manager.js" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>

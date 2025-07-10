@@ -370,7 +370,7 @@ async function findMissingOkButtonHandler() {
         return;
     }
 
-    console.log(`Find Missing OK clicked. Range1: "${range1}", Range2: "${range2}"`);
+    // console.log(`Find Missing OK clicked. Range1: "${range1}", Range2: "${range2}"`);
     hideFindMissingModal();
 
     // Run Find Missing
@@ -456,7 +456,7 @@ async function compareSheetsOkButtonHandler() {
         return;
     }
 
-    console.log(`Compare Worksheets OK clicked. Worksheet1: "${worksheet1.value}", Worksheet2: "${worksheet2.value}"`);
+    // console.log(`Compare Worksheets OK clicked. Worksheet1: "${worksheet1.value}", Worksheet2: "${worksheet2.value}"`);
     hideCompareSheetsModal();
 
     // Run Compare Worksheets

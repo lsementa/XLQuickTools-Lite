@@ -12,11 +12,29 @@ async function convertSelectedDates(currentLocale, convertLocale, format, type) 
     await Excel.run(async (context) => {
         const selectedRange = context.workbook.getSelectedRange();
         const effectiveRange = await getEffectiveRangeForSelection(context, selectedRange);
+        const undoRange = effectiveRange;
 
         if (!effectiveRange) {
             showModalMessage("", "No effective range found for the current selection.", false);
             return;
         }
+
+        // Load the necessary properties from effectiveRange for undo
+        undoRange.load("address");
+        undoRange.worksheet.load("name");
+        undoRange.load("values, numberFormat");
+        await context.sync();
+
+        // Pass the to the undo manager
+        const worksheetName = undoRange.worksheet.name;
+        const rangeAddress = undoRange.address;
+        const originalValues = undoRange.values;
+        const originalNumberFormat = undoRange.numberFormat;
+
+        console.log("Are you getting here? " + rangeAddress);
+
+        // Store the current state BEFORE making changes
+        await undoManager.copyAndStoreFormat(worksheetName, rangeAddress, originalValues, originalNumberFormat);
 
         effectiveRange.load("values, numberFormat");
         await context.sync();
@@ -51,7 +69,14 @@ async function convertSelectedDates(currentLocale, convertLocale, format, type) 
         effectiveRange.values = newValues;
         await context.sync();
 
+        // Update UI: Enable undo button
+        if (undoManager.canUndo()) {
+            enableUndoButton();
+        }
+
         showModalMessage("Date/Text Converter", "Date conversion complete!", false);
+
+
     });
 }
 

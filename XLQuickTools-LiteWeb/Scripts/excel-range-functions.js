@@ -1,7 +1,6 @@
 ﻿// --- Excel Range Functions ---
 // excel-range-functions.js
 
-
 Office.onReady(() => {
     // On Ready
 });
