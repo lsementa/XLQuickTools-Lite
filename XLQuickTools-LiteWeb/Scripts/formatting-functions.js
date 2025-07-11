@@ -386,7 +386,12 @@ async function selectionPlus(leading, trailing, delimiter) {
 
         // Copy to clipboard if any non-empty values were found
         if (finalString.length > 0) {
-            await navigator.clipboard.writeText(finalString);
+            try {
+                await navigator.clipboard.writeText(finalString);
+            } catch (err) {
+                console.error("Failed to copy to clipboard:", err);
+                showModalMessage("Selection Plus", "Failed to copy to clipboard. If using Excel online it could be a permissions issue.", true);
+            }
         }
     });
 }
@@ -690,7 +695,7 @@ async function copyHighlightedClipboard() {
                     showModalMessage("Copy Highlighted Cells", `Copied ${clipboardText.split('\n').length} lines to clipboard.`, false);
                 } catch (err) {
                     console.error("Failed to copy to clipboard:", err);
-                    showModalMessage("Copy Highlighted Cells", "Failed to copy to clipboard", true);
+                    showModalMessage("Copy Highlighted Cells", "Failed to copy to clipboard. If using Excel online it could be a permissions issue.", true);
                 }
             } else {
                 showModalMessage("Copy Highlighted Cells", "No highlighted cells found to copy.", false);
@@ -887,8 +892,10 @@ async function removeExcess() {
             }
 
             await context.sync();
-            showModalMessage("Remove Excess Formatting", `Cleared any excess formatting beyond Column ${getColumnLetter(lastDataColumn-1)} and Row ${lastDataRow}.`, false);
-        });
+            if (lastDataRow >= 1) {
+                showModalMessage("Remove Excess Formatting", `Cleared any excess formatting beyond Column ${getColumnLetter(lastDataColumn - 1)} and Row ${lastDataRow}.`, false);
+            }
+            });
     } catch (error) {
         console.error("Remove Excess:", error);
         showModalMessage("Remove Excess Formatting", "An error occurred while removing excess formatting. Please try again.", false);

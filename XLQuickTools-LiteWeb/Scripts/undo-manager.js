@@ -4,8 +4,8 @@ class UndoManager {
     constructor() {
         this.lastWorksheetName = "";
         this.lastFormattedRangeAddress = "";
-        this.originalNumberFormat = null; // Store the full 2D array or string
-        this.originalValues = null;       // Store the full 2D array
+        this.originalNumberFormat = null; // 2D array
+        this.originalValues = null;       // 2D array
     }
 
     // Store the current state of the specified range (values and number format) for undo
@@ -22,12 +22,12 @@ class UndoManager {
         this.originalNumberFormat = numberFormat;
         this.originalValues = values;
 
-        console.log("State stored for undo:", {
+/*        console.log("State stored for undo:", {
             worksheet: this.lastWorksheetName,
             range: this.lastFormattedRangeAddress,
             numberFormat: this.originalNumberFormat,
             values: this.originalValues
-        });
+        });*/
 
     }
 
