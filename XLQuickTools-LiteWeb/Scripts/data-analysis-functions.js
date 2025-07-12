@@ -330,9 +330,13 @@ async function findMissingData(highlight, range1Address, range2Address) {
                 return;
             }
 
-            // Flatten arrays and filter out nulls for Set creation
-            const set1 = new Set(myRange1.values.flat().filter(item => item !== null));
-            const set2 = new Set(myRange2.values.flat().filter(item => item !== null));
+            // Flatten arrays and filter out null, undefined, and empty/whitespace-only strings for Set creation
+            const set1 = new Set(myRange1.values.flat().filter(item => {
+                return item !== null && item !== undefined && String(item).trim() !== '';
+            }));
+            const set2 = new Set(myRange2.values.flat().filter(item => {
+                return item !== null && item !== undefined && String(item).trim() !== '';
+            }));
 
             const missingInRange2 = [];
             for (const item of set1) {
@@ -473,7 +477,7 @@ async function compareWorksheets(highlight, sheet1Name, sheet2Name) {
                 range1 = sheet1.getUsedRange();
                 range2 = sheet2.getUsedRange();
             } catch (error) {
-                showModalMessage("Compare Sheets", "One or both sheets are empty.", true);
+                showModalMessage("Compare Sheets", "One or both sheets are empty.", false);
                 return;
             }
 
@@ -484,7 +488,7 @@ async function compareWorksheets(highlight, sheet1Name, sheet2Name) {
 
             // Check if ranges are valid and contain data
             if (!range1.values || !range2.values) {
-                showModalMessage("Compare Sheets", "One or both sheets are empty.", true);
+                showModalMessage("Compare Sheets", "One or both sheets are empty.", false);
                 return;
             }
 
@@ -492,17 +496,37 @@ async function compareWorksheets(highlight, sheet1Name, sheet2Name) {
             const values2 = range2.values;
 
             const rows = Math.max(values1.length, values2.length);
-            const cols = Math.max(
-                Math.max(...values1.map(row => row.length)),
-                Math.max(...values2.map(row => row.length))
-            );
+
+            // Calculate max columns without spread operator to avoid stack overflow
+            let maxCols1 = 0;
+            for (const row of values1) {
+                if (row.length > maxCols1) {
+                    maxCols1 = row.length;
+                }
+            }
+
+            let maxCols2 = 0;
+            for (const row of values2) {
+                if (row.length > maxCols2) {
+                    maxCols2 = row.length;
+                }
+            }
+
+            const cols = Math.max(maxCols1, maxCols2);
+
+            //console.log(`Comparing ${rows} rows x ${cols} columns = ${rows * cols} cells`);
 
             let differencesFound = false;
             const diffList = [];
             const cellsToHighlight1 = [];
             const cellsToHighlight2 = [];
 
-            // Compare cell by cell
+            // Progress tracking for large datasets
+            const totalCells = rows * cols;
+            const progressInterval = Math.max(1000, Math.floor(totalCells / 100)); // Report every 1% or 1000 cells
+            let processedCells = 0;
+
+            // Compare cell by cell with progress reporting
             for (let row = 0; row < rows; row++) {
                 for (let col = 0; col < cols; col++) {
                     const val1 = (row < values1.length && col < values1[row].length) ? values1[row][col] : null;
@@ -526,29 +550,43 @@ async function compareWorksheets(highlight, sheet1Name, sheet2Name) {
                             sheet2Cell: cellRef
                         });
 
-                        // Track cells to highlight
-                        if (highlight) {
+                        // Track cells to highlight (with limits for performance)
+                        if (highlight && cellsToHighlight1.length < 500) { // Limit highlighting
                             cellsToHighlight1.push({ row, col });
                             cellsToHighlight2.push({ row, col });
                         }
                     }
+
+                    processedCells++;
+
+                    // Progress reporting
+                    if (processedCells % progressInterval === 0) {
+                        const progress = Math.round((processedCells / totalCells) * 100);
+                        console.log(`Progress: ${progress}% (${processedCells}/${totalCells} cells) - Found ${diffList.length} differences`);
+                    }
                 }
             }
 
-            // Highlight differences if requested
+            //console.log(`Comparison complete. Found ${diffList.length} differences`);
+
+            // Handle highlighting
             if (highlight && differencesFound) {
-                await highlightDifferenceCells(sheet1, range1, cellsToHighlight1);
-                await highlightDifferenceCells(sheet2, range2, cellsToHighlight2);
+                if (cellsToHighlight1.length > 0) {
+                    await highlightDifferenceCells(context, sheet1, range1, cellsToHighlight1);
+                    await highlightDifferenceCells(context, sheet2, range2, cellsToHighlight2);
+                }
             }
 
+            // No differences
             if (!differencesFound) {
                 showModalMessage("Compare Sheets", "The sheets are identical!", false);
                 return;
             }
 
-            // Create comparison report
+            // Create comparison report with chunking for large datasets
             await createComparisonReport(context, diffList, sheet1Name, sheet2Name);
 
+           // Final sync
             await context.sync();
 
         } catch (error) {
@@ -559,17 +597,23 @@ async function compareWorksheets(highlight, sheet1Name, sheet2Name) {
 }
 
 // Helper function to highlight difference cells
-async function highlightDifferenceCells(sheet, usedRange, cellsToHighlight) {
-    await Excel.run(async (context) => {
-        for (const cellPos of cellsToHighlight) {
+async function highlightDifferenceCells(context, sheet, usedRange, cellsToHighlight) {
+
+    // Process in small batches to avoid overwhelming Excel
+    for (let i = 0; i < cellsToHighlight.length; i += BATCH_SIZE) {
+        const batch = cellsToHighlight.slice(i, i + BATCH_SIZE);
+
+        for (const cellPos of batch) {
             const cell = usedRange.getCell(cellPos.row, cellPos.col);
             cell.format.fill.color = "yellow";
         }
+
+        // Sync every batch to prevent memory buildup
         await context.sync();
-    });
+    }
 }
 
-// Helper function to convert row/col to A1 reference
+// Helper function to convert row/col to A1 reference for links on report
 function convertToA1Reference(row, col) {
     let colString = "";
     while (col > 0) {
@@ -586,20 +630,18 @@ async function createComparisonReport(context, diffList, sheet1Name, sheet2Name)
     let compareSheet;
     const sheetNameReport = "Compare Report";
 
+    //console.log(`Creating report with ${diffList.length} differences`);
+
     try {
-        console.log(`Attempting to get worksheet: ${sheetNameReport}`);
         compareSheet = workbook.worksheets.getItem(sheetNameReport);
         compareSheet.load('name');
         await context.sync();
-        console.log(`Worksheet '${sheetNameReport}' found.`);
     } catch (e) {
         if (e.code === 'ItemNotFound') {
-            console.log(`Worksheet '${sheetNameReport}' not found, attempting to add it.`);
             try {
                 compareSheet = workbook.worksheets.add(sheetNameReport);
                 compareSheet.load('name');
                 await context.sync();
-                console.log(`Worksheet '${sheetNameReport}' successfully added.`);
             } catch (addError) {
                 console.error(`Error adding worksheet '${sheetNameReport}':`, addError);
                 showModalMessage("Error", `Failed to add report sheet: ${addError.message || addError}`, true);
@@ -615,7 +657,6 @@ async function createComparisonReport(context, diffList, sheet1Name, sheet2Name)
     try {
         compareSheet.activate();
         await context.sync();
-        console.log(`Worksheet '${sheetNameReport}' activated.`);
     } catch (activateError) {
         console.error(`Error activating worksheet '${sheetNameReport}':`, activateError);
         showModalMessage("Error", `Failed to activate report sheet: ${activateError.message || activateError}`, true);
@@ -650,53 +691,71 @@ async function createComparisonReport(context, diffList, sheet1Name, sheet2Name)
     headerRange.format.borders.getItem("EdgeLeft").weight = Excel.BorderWeight.thin;
     headerRange.format.borders.getItem("EdgeRight").weight = Excel.BorderWeight.thin;
 
-    // Prepare data for output
+    // Process data in chunks for large datasets
     if (diffList.length > 0) {
-        const outputData = diffList.map(diff => [
-            diff.sheet1Value,
-            diff.sheet1Cell,
-            diff.sheet2Value,
-            diff.sheet2Cell
-        ]);
+        const totalChunks = Math.ceil(diffList.length / CHUNK_SIZE);
 
-        // Write all data at once
-        const dataRange = compareSheet.getRange(`A2:D${diffList.length + 1}`);
-        dataRange.values = outputData;
+        for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
+            const startIdx = chunkIndex * CHUNK_SIZE;
+            const endIdx = Math.min(startIdx + CHUNK_SIZE, diffList.length);
+            const chunk = diffList.slice(startIdx, endIdx);
 
-        // Add hyperlinks to the reference columns (B and D)
-        for (let i = 0; i < diffList.length; i++) {
-            const rowNum = i + 2; // +2 because we start at row 2
+            //console.log(`Processing chunk ${chunkIndex + 1}/${totalChunks} (rows ${startIdx + 1}-${endIdx})`);
 
-            // Hyperlink for Sheet1 reference (column B)
-            const sheet1RefCell = compareSheet.getCell(rowNum - 1, 1); // 0-based indexing
-            sheet1RefCell.hyperlink = {
-                address: `#'${sheet1Name}'!${diffList[i].sheet1Cell}`,
-                textToDisplay: diffList[i].sheet1Cell
-            };
+            // Prepare data for this chunk
+            const outputData = chunk.map(diff => [
+                diff.sheet1Value,
+                diff.sheet1Cell,
+                diff.sheet2Value,
+                diff.sheet2Cell
+            ]);
 
-            // Hyperlink for Sheet2 reference (column D)
-            const sheet2RefCell = compareSheet.getCell(rowNum - 1, 3); // 0-based indexing
-            sheet2RefCell.hyperlink = {
-                address: `#'${sheet2Name}'!${diffList[i].sheet2Cell}`,
-                textToDisplay: diffList[i].sheet2Cell
-            };
+            // Write chunk data
+            const dataRange = compareSheet.getRange(`A${startIdx + 2}:D${endIdx + 1}`);
+            dataRange.values = outputData;
+            await context.sync();
+
+            // Add hyperlinks for this chunk (limit to prevent timeout)
+            if (diffList.length <= LINK_LIMIT) {
+                for (let i = 0; i < chunk.length; i++) {
+                    const rowNum = startIdx + i + 2;
+                    const diffItem = chunk[i];
+
+                    // Hyperlink for Sheet1 reference (column B)
+                    const sheet1RefCell = compareSheet.getCell(rowNum - 1, 1);
+                    sheet1RefCell.hyperlink = {
+                        address: `#'${sheet1Name}'!${diffItem.sheet1Cell}`,
+                        textToDisplay: diffItem.sheet1Cell
+                    };
+
+                    // Hyperlink for Sheet2 reference (column D)
+                    const sheet2RefCell = compareSheet.getCell(rowNum - 1, 3);
+                    sheet2RefCell.hyperlink = {
+                        address: `#'${sheet2Name}'!${diffItem.sheet2Cell}`,
+                        textToDisplay: diffItem.sheet2Cell
+                    };
+                }
+                await context.sync();
+            }
+        }
+
+        // Apply formatting to the used range
+        try {
+            const finalUsedRange = compareSheet.getUsedRange();
+            if (finalUsedRange) {
+                finalUsedRange.format.autofitColumns();
+                finalUsedRange.format.horizontalAlignment = Excel.HorizontalAlignment.left;
+            }
+        } catch (formatError) {
+            console.log("Error formatting used range:", formatError);
+        }
+
+        if (diffList.length > LINK_LIMIT) {
+            showModalMessage("Compare Sheets",
+                `Report created with ${diffList.length} differences. Hyperlinks skipped for performance with large datasets.`,
+                false);
         }
     }
-
-    // Apply formatting to the used range
-    try {
-        const finalUsedRange = compareSheet.getUsedRange();
-        if (finalUsedRange) {
-            finalUsedRange.format.autofitColumns();
-            finalUsedRange.format.horizontalAlignment = Excel.HorizontalAlignment.left;
-        }
-    } catch (formatError) {
-        console.log("Error formatting used range:", formatError);
-    }
-
-    await context.sync();
-
-    showModalMessage("Compare Sheets", `Comparison complete! Found ${diffList.length} differences. See the Compare Report sheet for details.`, false);
 }
 
 // Reset column
@@ -738,7 +797,7 @@ async function resetColumn() {
             const newValues = values.map(row => {
                 const cellValue = row[0];
                 if (cellValue === null || cellValue === undefined || cellValue === "") {
-                    return [cellValue]; // Keep null/undefined/empty string as is
+                    return [cellValue]; // Keep as is
                 }
 
                 let stringValue = String(cellValue).trim();

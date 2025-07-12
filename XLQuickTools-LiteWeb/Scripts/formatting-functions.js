@@ -17,9 +17,6 @@ const TextTransformOption = {
     SUBSCRIPT_UNICODE: 'SUBSCRIPT_UNICODE'
 };
 
-// For large data processing
-const CHUNK_SIZE = 10000;
-
 // Clean string
 function cleanString(inputString) {
     if (typeof inputString !== 'string') {
