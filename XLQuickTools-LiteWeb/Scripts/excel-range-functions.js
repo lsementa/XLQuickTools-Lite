@@ -8,7 +8,6 @@ Office.onReady(() => {
 // Constants for large data processing
 const CHUNK_SIZE = 10000;
 const BATCH_SIZE = 50;
-const LINK_LIMIT = 500000;
 
 // Function to convert column index to Excel column letter
 function getColumnLetter(columnIndex) {

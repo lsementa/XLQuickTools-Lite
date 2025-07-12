@@ -413,6 +413,7 @@ async function findMissingData(highlight, range1Address, range2Address) {
 
             // Add headers
             const headerRange = missingReportSheet.getRange("A1:B1");
+            headerRange.format.font.bold = true;
             headerRange.values = [[`Missing in ${range1Address.replace(/\$/g, "")}`, `Missing in ${range2Address.replace(/\$/g, "")}`]];
             headerRange.format.borders.getItem("InsideHorizontal").weight = Excel.BorderWeight.thin;
             headerRange.format.borders.getItem("InsideVertical").weight = Excel.BorderWeight.thin;
@@ -684,6 +685,7 @@ async function createComparisonReport(context, diffList, sheet1Name, sheet2Name)
     ]];
 
     // Apply header formatting
+    headerRange.format.font.bold = true;
     headerRange.format.borders.getItem("InsideHorizontal").weight = Excel.BorderWeight.thin;
     headerRange.format.borders.getItem("InsideVertical").weight = Excel.BorderWeight.thin;
     headerRange.format.borders.getItem("EdgeTop").weight = Excel.BorderWeight.thin;
@@ -702,41 +704,18 @@ async function createComparisonReport(context, diffList, sheet1Name, sheet2Name)
 
             //console.log(`Processing chunk ${chunkIndex + 1}/${totalChunks} (rows ${startIdx + 1}-${endIdx})`);
 
-            // Prepare data for this chunk
+            // Prepare data for this chunk with HYPERLINK formulas
             const outputData = chunk.map(diff => [
                 diff.sheet1Value,
-                diff.sheet1Cell,
+                `=HYPERLINK("#'${sheet1Name}'!${diff.sheet1Cell}", "${diff.sheet1Cell}")`,
                 diff.sheet2Value,
-                diff.sheet2Cell
+                `=HYPERLINK("#'${sheet2Name}'!${diff.sheet2Cell}", "${diff.sheet2Cell}")`
             ]);
 
-            // Write chunk data
+            // Write chunk data including formulas
             const dataRange = compareSheet.getRange(`A${startIdx + 2}:D${endIdx + 1}`);
             dataRange.values = outputData;
             await context.sync();
-
-            // Add hyperlinks for this chunk (limit to prevent timeout)
-            if (diffList.length <= LINK_LIMIT) {
-                for (let i = 0; i < chunk.length; i++) {
-                    const rowNum = startIdx + i + 2;
-                    const diffItem = chunk[i];
-
-                    // Hyperlink for Sheet1 reference (column B)
-                    const sheet1RefCell = compareSheet.getCell(rowNum - 1, 1);
-                    sheet1RefCell.hyperlink = {
-                        address: `#'${sheet1Name}'!${diffItem.sheet1Cell}`,
-                        textToDisplay: diffItem.sheet1Cell
-                    };
-
-                    // Hyperlink for Sheet2 reference (column D)
-                    const sheet2RefCell = compareSheet.getCell(rowNum - 1, 3);
-                    sheet2RefCell.hyperlink = {
-                        address: `#'${sheet2Name}'!${diffItem.sheet2Cell}`,
-                        textToDisplay: diffItem.sheet2Cell
-                    };
-                }
-                await context.sync();
-            }
         }
 
         // Apply formatting to the used range
@@ -750,11 +729,10 @@ async function createComparisonReport(context, diffList, sheet1Name, sheet2Name)
             console.log("Error formatting used range:", formatError);
         }
 
-        if (diffList.length > LINK_LIMIT) {
-            showModalMessage("Compare Sheets",
-                `Report created with ${diffList.length} differences. Hyperlinks skipped for performance with large datasets.`,
-                false);
-        }
+        // Show finished message
+        showModalMessage("Compare Sheets",
+            `Report created with ${diffList.length} differences.`,
+            false);
     }
 }
 
