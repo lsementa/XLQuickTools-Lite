@@ -73,7 +73,7 @@ document.addEventListener('click', function (event) {
 
 // Menu item clicked
 async function handleClick(action, event) {
-    //console.log("Action (from Task Pane):", action);
+    // console.log("Action (from Task Pane):", action);
 
     try {
         switch (action) {

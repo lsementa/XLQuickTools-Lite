@@ -515,7 +515,7 @@ async function compareWorksheets(highlight, sheet1Name, sheet2Name) {
 
             const cols = Math.max(maxCols1, maxCols2);
 
-            //console.log(`Comparing ${rows} rows x ${cols} columns = ${rows * cols} cells`);
+            // console.log(`Comparing ${rows} rows x ${cols} columns = ${rows * cols} cells`);
 
             let differencesFound = false;
             const diffList = [];
@@ -563,12 +563,12 @@ async function compareWorksheets(highlight, sheet1Name, sheet2Name) {
                     // Progress reporting
                     if (processedCells % progressInterval === 0) {
                         const progress = Math.round((processedCells / totalCells) * 100);
-                        console.log(`Progress: ${progress}% (${processedCells}/${totalCells} cells) - Found ${diffList.length} differences`);
+                        // console.log(`Progress: ${progress}% (${processedCells}/${totalCells} cells) - Found ${diffList.length} differences`);
                     }
                 }
             }
 
-            //console.log(`Comparison complete. Found ${diffList.length} differences`);
+            // console.log(`Comparison complete. Found ${diffList.length} differences`);
 
             // Handle highlighting
             if (highlight && differencesFound) {
@@ -631,7 +631,7 @@ async function createComparisonReport(context, diffList, sheet1Name, sheet2Name)
     let compareSheet;
     const sheetNameReport = "Compare Report";
 
-    //console.log(`Creating report with ${diffList.length} differences`);
+    // console.log(`Creating report with ${diffList.length} differences`);
 
     try {
         compareSheet = workbook.worksheets.getItem(sheetNameReport);
@@ -702,7 +702,7 @@ async function createComparisonReport(context, diffList, sheet1Name, sheet2Name)
             const endIdx = Math.min(startIdx + CHUNK_SIZE, diffList.length);
             const chunk = diffList.slice(startIdx, endIdx);
 
-            //console.log(`Processing chunk ${chunkIndex + 1}/${totalChunks} (rows ${startIdx + 1}-${endIdx})`);
+            // console.log(`Processing chunk ${chunkIndex + 1}/${totalChunks} (rows ${startIdx + 1}-${endIdx})`);
 
             // Prepare data for this chunk with HYPERLINK formulas
             const outputData = chunk.map(diff => [
@@ -728,11 +728,6 @@ async function createComparisonReport(context, diffList, sheet1Name, sheet2Name)
         } catch (formatError) {
             console.log("Error formatting used range:", formatError);
         }
-
-        // Show finished message
-        showModalMessage("Compare Sheets",
-            `Report created with ${diffList.length} differences.`,
-            false);
     }
 }
 

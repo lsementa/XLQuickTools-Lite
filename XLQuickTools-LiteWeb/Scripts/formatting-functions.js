@@ -164,8 +164,9 @@ async function fillBlanksInRange(context, fillRange, showMessages = false) {
         fillRange.values = newValues;
         await context.sync();
 
+        // Display message to user
         if (showMessages) {
-            showModalMessage("Fill Down", `Updates made to ${cellsUpdated} cells.`, false);
+            showModalMessage("Fill Down", `Updates made to ${cellsUpdated.toLocaleString()} cells.`, false);
         }
 
         return cellsUpdated;
@@ -221,115 +222,136 @@ function isBlank(value) {
         (typeof value === 'string' && value.trim() === "");
 }
 
-// Split to Rows
+// Split columns to rows
 async function splitToRows(headers, delimiter) {
-    await Excel.run(async (context) => {
-        const sheet = context.workbook.worksheets.getActiveWorksheet();
-        const usedRange = sheet.getUsedRange();
+    try {
+        await Excel.run(async (context) => {
+            const sheet = context.workbook.worksheets.getActiveWorksheet();
+            const usedRange = sheet.getUsedRange();
 
-        // Load all necessary properties upfront
-        usedRange.load(['values', 'rowIndex', 'columnIndex', 'rowCount', 'columnCount']);
+            // Load all necessary properties
+            usedRange.load(['values', 'rowIndex', 'columnIndex', 'rowCount', 'columnCount']);
+            await context.sync();
 
-        await context.sync();
-
-        // Check if usedRange is valid
-        if (!usedRange || usedRange.rowCount === 0) {
-            console.log("No data found in worksheet.");
-            return;
-        }
-
-        let startRow = usedRange.rowIndex;
-        let endRow = startRow + usedRange.rowCount - 1;
-        let startCol = usedRange.columnIndex;
-        let endCol = startCol + usedRange.columnCount - 1;
-
-        // Adjust startRow if headers are present
-        if (headers) {
-            startRow++;
-            if (startRow > endRow) {
-                console.log("No data rows to process after skipping headers.");
+            // Check if usedRange is valid
+            if (!usedRange || usedRange.rowCount === 0) {
+                console.log("No data found in worksheet.");
+                showModalMessage("Split Columns to Rows", "No data found in worksheet.", false);
                 return;
             }
-        }
 
-        let changeCount = 0;
+            const originalValues = usedRange.values;
+            const originalStartRow = usedRange.rowIndex;
+            const originalStartCol = usedRange.columnIndex;
+            const originalRowCount = usedRange.rowCount;
+            const originalColumnCount = usedRange.columnCount;
 
-        // Process from bottom to top to avoid index shifting
-        for (let iLoop = endRow; iLoop >= startRow; iLoop--) {
-            let maxSplitsInRow = 0;
-
-            // First pass: determine splits needed
-            for (let i = startCol; i <= endCol; i++) {
-                const cellValue = usedRange.values[iLoop - usedRange.rowIndex][i - usedRange.columnIndex];
-
-                if (cellValue !== null && cellValue !== undefined && String(cellValue).length > 0) {
-                    const parts = String(cellValue).split(delimiter);
-                    const splitsCount = parts.length - 1;
-
-                    if (splitsCount > maxSplitsInRow) {
-                        maxSplitsInRow = splitsCount;
-                        changeCount++;
-                    }
+            let dataStartRowIndex = 0;
+            if (headers) {
+                dataStartRowIndex = 1;
+                if (originalRowCount === 1) {
+                    showModalMessage("Split Columns to Rows", "No data rows to process after skipping headers.", false);
+                    return;
                 }
             }
 
-            // Insert rows if needed
-            if (maxSplitsInRow > 0) {
-                try {
-                    // Create a range for the entire row to insert
-                    const insertRange = sheet.getRangeByIndexes(
-                        iLoop + 1,      // Row to insert at
-                        0,              // Start at column 0 (entire row)
-                        maxSplitsInRow, // Number of rows to insert
-                        16384           // Excel's maximum columns
-                    );
+            const processedRows = [];
+            let totalRowsAdded = 0;
+            let changeMade = false;
 
-                    insertRange.insert(Excel.InsertShiftDirection.down);
-                    await context.sync();
-                } catch (insertError) {
-                    console.error(`Error inserting rows at ${iLoop + 1}:`, insertError);
-                    // Try with just the used range columns as fallback
-                    const insertRange = sheet.getRangeByIndexes(
-                        iLoop + 1,
-                        startCol,
-                        maxSplitsInRow,
-                        usedRange.columnCount
-                    );
-                    insertRange.insert(Excel.InsertShiftDirection.down);
-                    await context.sync();
-                }
-            }
+            for (let i = dataStartRowIndex; i < originalRowCount; i++) {
+                const currentRow = originalValues[i];
+                let maxSplitsInRow = 0;
 
-            // Second pass: populate cells
-            for (let i = startCol; i <= endCol; i++) {
-                const cellValue = usedRange.values[iLoop - usedRange.rowIndex][i - usedRange.columnIndex];
-
-                if (cellValue !== null && cellValue !== undefined && String(cellValue).length > 0) {
-                    const parts = String(cellValue).split(delimiter);
-
-                    for (let jLoop = 0; jLoop < parts.length; jLoop++) {
-                        const cleanedValue = cleanString(parts[jLoop].trim());
-                        const targetCell = sheet.getCell(iLoop + jLoop, i);
-                        targetCell.values = [[cleanedValue]];
+                // First pass: determine maximum number of delimiters used in the current row
+                for (let j = 0; j < originalColumnCount; j++) {
+                    const cellValue = currentRow[j];
+                    if (cellValue !== null && cellValue !== undefined && String(cellValue).length > 0) {
+                        const parts = String(cellValue).split(delimiter);
+                        maxSplitsInRow = Math.max(maxSplitsInRow, parts.length - 1);
                     }
+                }
+
+                if (maxSplitsInRow === 0) {
+                    // No splits in this row, add it as is
+                    processedRows.push(currentRow);
                 } else {
-                    const targetCell = sheet.getCell(iLoop, i);
-                    targetCell.values = [['']];
+                    changeMade = true;
+                    totalRowsAdded += maxSplitsInRow;
+
+                    // Initialize new rows with empty strings, then populate
+                    const newRowsForCurrentOriginalRow = Array.from({ length: maxSplitsInRow + 1 }, () => Array(originalColumnCount).fill(''));
+
+                    for (let j = 0; j < originalColumnCount; j++) {
+                        const cellValue = currentRow[j];
+                        if (cellValue !== null && cellValue !== undefined && String(cellValue).length > 0) {
+                            const parts = String(cellValue).split(delimiter).map(part => part.trim());
+
+                            for (let k = 0; k < parts.length; k++) {
+                                newRowsForCurrentOriginalRow[k][j] = parts[k];
+                            }
+                            // If a column has fewer splits than maxSplitsInRow,
+                            // the remaining cells in newRowsForCurrentOriginalRow for this column
+                            // will retain the first value from the original cell, if it was a single value.
+                            // Or be empty if it was split and the parts array is shorter.
+                            if (parts.length === 1 && maxSplitsInRow > 0) {
+                                for (let k = 1; k <= maxSplitsInRow; k++) {
+                                    // Fill down if single value
+                                    newRowsForCurrentOriginalRow[k][j] = parts[0];
+                                }
+                            }
+                        } else {
+                            // If original cell was empty, fill all corresponding new cells with empty string
+                            for (let k = 0; k <= maxSplitsInRow; k++) {
+                                newRowsForCurrentOriginalRow[k][j] = '';
+                            }
+                        }
+                    }
+                    processedRows.push(...newRowsForCurrentOriginalRow);
                 }
             }
 
-            await context.sync();
-        }
+            // If headers were present, re-add them to the beginning of the processed rows
+            if (headers) {
+                processedRows.unshift(originalValues[0]);
+            }
 
-        // Final sync after the loop to ensure all operations are applied
-        await context.sync();
-        // Fill in the blanks
-        const currentUsedRange = sheet.getUsedRange();
-        await fillBlanksInRange(context, currentUsedRange);
+            if (!changeMade) {
+                showModalMessage("Split Columns to Rows", "No cells contained the delimiter. No changes made.", false);
+                return;
+            }
 
-    }).catch(function (error) {
+            // Determine the target range for writing the new data
+            const targetRange = sheet.getRangeByIndexes(
+                originalStartRow,
+                originalStartCol,
+                processedRows.length,
+                originalColumnCount
+            );
+
+            // Clear the original used range then set new values
+            sheet.getUsedRange().clear();
+            targetRange.values = processedRows;
+
+            // Apply formatting once at the end
+            targetRange.load('format');
+            await context.sync(); // Sync to load format object
+
+            targetRange.format.wrapText = false;
+            targetRange.format.shrinkToFit = false;
+            targetRange.format.autoIndent = false;
+
+            await context.sync(); // Final sync to apply changes
+
+            showModalMessage("Split Columns to Rows",
+                `Active worksheet's columns with the selected delimiter have been split into rows. ${totalRowsAdded.toLocaleString()} new rows added.`,
+                false);
+
+        });
+    } catch (error) {
         console.error("Error in splitToRows:", error);
-    });
+        showModalMessage("Split Columns to Rows", "An error occurred during processing. Check console for details.", true);
+    }
 }
 
 // Selection Plus
@@ -890,7 +912,7 @@ async function removeExcess() {
 
             await context.sync();
             if (lastDataRow >= 1) {
-                showModalMessage("Remove Excess Formatting", `Cleared any excess formatting beyond Column ${getColumnLetter(lastDataColumn - 1)} and Row ${lastDataRow}.`, false);
+                showModalMessage("Remove Excess Formatting", `Cleared any excess formatting beyond Column ${getColumnLetter(lastDataColumn - 1)} and Row ${lastDataRow.toLocaleString()}.`, false);
             }
             });
     } catch (error) {

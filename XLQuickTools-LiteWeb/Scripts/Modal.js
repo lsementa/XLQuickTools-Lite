@@ -141,7 +141,7 @@ async function onAddLeadTrailOk() {
     const leadingText = document.getElementById('leadingText').value;
     const trailingText = document.getElementById('trailingText').value;
 
-    //console.log(`Modal OK clicked. Leading: "${leadingText}", Trailing: "${trailingText}"`);
+    // console.log(`Modal OK clicked. Leading: "${leadingText}", Trailing: "${trailingText}"`);
     hideAddLeadTrailModal();
 
     // Run
@@ -181,7 +181,7 @@ async function onAddHyperlinksOk() {
     const url = document.getElementById('url').value;
     const headers = document.getElementById('URLheaders').checked;
 
-    //console.log(`Modal OK clicked. URL: "${url}", Display Text: "${displayText}"`);
+    // console.log(`Modal OK clicked. URL: "${url}", Display Text: "${displayText}"`);
     hideAddHyperlinksModal();
 
     // Run
@@ -271,7 +271,7 @@ async function selectionPlusOkButtonHandler() {
     const leadingText = leadingTextInput.value;
     const trailingText = trailingTextInput.value;
 
-    //console.log(`Selection Plus OK clicked. Delimiter: "${delimiter}", Leading: "${leadingText}", Trailing: "${trailingText}"`);
+    // console.log(`Selection Plus OK clicked. Delimiter: "${delimiter}", Leading: "${leadingText}", Trailing: "${trailingText}"`);
     hideSelectionPlusModal();
 
     // Run selection plus
@@ -351,7 +351,7 @@ async function splitToRowsOkButtonHandler() {
         }
     }
 
-    console.log(`Split to Rows OK clicked. Delimiter: "${delimiter}", Headers: "${headers}"`);
+    // console.log(`Split to Rows OK clicked. Delimiter: "${delimiter}", Headers: "${headers}"`);
     hideSplitToRowsModal();
 
     // If no delimiter exit early
