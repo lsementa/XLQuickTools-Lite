@@ -126,17 +126,14 @@
                     <div onclick="handleClick('delete-empty-columns')">
                         <img src="/Images/DeleteColumns.png" class="icon" alt="">Delete Empty Columns
                     </div>
-                    <div onclick="handleClick('copy-highlighted')">
-                        <img src="/Images/CopyHighlighted.png" class="icon" alt="">Copy Highlighted Cells
+                    <div onclick="handleClick('fill-down')">
+                        <img src="/Images/FillDown.png" class="icon" alt="">Fill Down
                     </div>
                     <div onclick="handleClick('remove-hyperlinks')">
                         <img src="/Images/RemoveHyperlinks.png" class="icon" alt="">Remove Hyperlinks
                     </div>
                     <div onclick="handleClick('add-hyperlinks')">
-                        <img src="/Images/AddHyperlinks.png" class="icon" alt="">Add Parameterized Links
-                    </div>
-                    <div onclick="handleClick('fill-down')">
-                        <img src="/Images/FillDown.png" class="icon" alt="">Fill Down
+                        <img src="/Images/AddHyperlinks.png" class="icon" alt="">Add Hyperlinks
                     </div>
                 </div>
             </div>
@@ -231,8 +228,12 @@
                     <input type="checkbox" id="URLheaders">
                     <label for="URLheaders">My data has headers</label>
                 </div>
-                <label for="url">URL:</label>
-                <input type="text" id="url" placeholder="Use {ID} to be replaced with cell value">
+                <div class="checkbox-inline">
+                    <input type="checkbox" id="URLcells">
+                    <label for="URLcells">My data contains a URL as text in each cell</label>
+                </div>
+                <label for="url" id="urllabel" class="hidden-input">URL:<br />ex. https://myurl.com/view.html?id={ID}</label>
+                <input type="text" id="url" class="hidden-input" placeholder="Use {ID} to be replaced with cell value">
             </div>
             <div class="modal-footer">
                 <button id="addHyperlinksOkButton" class="button-ok">OK</button>

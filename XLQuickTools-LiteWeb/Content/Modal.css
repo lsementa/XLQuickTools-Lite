@@ -21,6 +21,12 @@
         margin-bottom: 12px;
     }
 
+#urllabel {
+    border: none;
+    display: block;
+    text-align: left;
+}
+
 .modal-overlay {
     position: fixed;
     top: 0;

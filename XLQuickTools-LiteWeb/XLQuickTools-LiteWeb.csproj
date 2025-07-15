@@ -94,7 +94,7 @@
     <Content Include="Images\Close.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <None Include="Properties\PublishProfiles\XLQuickTools-LiteWeb20250706141600 - Web Deploy.pubxml" />
+    <None Include="Properties\PublishProfiles\XLQuickTools-LiteWeb20250714110537 - Web Deploy.pubxml" />
     <None Include="Scripts\Office\1\outlook-win32.debug-vsdoc.js" />
     <None Include="Scripts\Office\1\office-vsdoc.js" />
     <None Include="Scripts\embedded\1.0\visio-web-embedded.debug-vsdoc.js" />
@@ -102,9 +102,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Images\Compare.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Images\CopyHighlighted.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Images\DataValidation.png">
@@ -678,6 +675,7 @@
   <ItemGroup>
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>

@@ -156,14 +156,19 @@ async function onAddLeadTrailOk() {
 function showAddHyperlinksModal() {
     const modal = document.getElementById('addHyperlinksModal');
     const url = document.getElementById('url');
+    const urllabel = document.getElementById('urllabel');
     const headers = document.getElementById('URLheaders');
+    const cellurls = document.getElementById('URLcells');
 
     if (modal) {
         modal.classList.add('show-modal');
         // Clear inputs and focus when showing
-        url.value = '';
         headers.checked = true;
-        // Focus on the first input
+        cellurls.checked = false;
+        url.value = '';
+        urllabel.classList.add('show');
+        url.classList.add('show');
+        url.disabled = false;
         url.focus();
     }
 }
@@ -180,6 +185,7 @@ function hideAddHyperlinksModal() {
 async function onAddHyperlinksOk() {
     const url = document.getElementById('url').value;
     const headers = document.getElementById('URLheaders').checked;
+    const cellurls = document.getElementById('URLcells').checked;
 
     // console.log(`Modal OK clicked. URL: "${url}", Display Text: "${displayText}"`);
     hideAddHyperlinksModal();
@@ -187,7 +193,7 @@ async function onAddHyperlinksOk() {
     // Run
     try {
         if (url) {
-            await addHyperlinks(url, headers);
+            await addHyperlinks(url, headers, cellurls);
         }
     } catch (error) {
         console.error("Error adding URLs:", error);
@@ -622,6 +628,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const addHyperlinksOkButton = document.getElementById('addHyperlinksOkButton');
     const addHyperlinksCancelButton = document.getElementById('addHyperlinksCancelButton');
     const addHyperlinksModalOverlay = document.getElementById('addHyperlinksModal');
+    const addHyperlinksURL = document.getElementById('url');
+    const addHyperlinksURLlabel = document.getElementById('urllabel');
+    const addHyperlinksCellURL = document.getElementById('URLcells');
 
     if (addHyperlinksOkButton) {
         addHyperlinksOkButton.addEventListener('click', onAddHyperlinksOk);
@@ -633,6 +642,26 @@ document.addEventListener('DOMContentLoaded', () => {
         addHyperlinksCancelButton.addEventListener('click', hideAddHyperlinksModal);
     } else {
         console.error("Add Hyperlinks Cancel button not found.");
+    }
+
+    // Listener for checkbox Cell URLs
+    if (addHyperlinksCellURL) {
+        const handleCellURLChange = () => {
+            if (!addHyperlinksCellURL.checked) {
+                addHyperlinksURLlabel.classList.add('show');
+                addHyperlinksURL.classList.add('show');
+                addHyperlinksURL.disabled = false;
+                addHyperlinksURL.focus();
+            } else {
+                addHyperlinksURL.value = '';
+                addHyperlinksURLlabel.classList.remove('show');
+                addHyperlinksURL.classList.remove('show');
+                addHyperlinksURL.disabled = true;
+            }
+        };
+        addHyperlinksCellURL.addEventListener('change', handleCellURLChange);
+    } else {
+        console.error("Hyperlinks cell URLs not found for checkbox logic.");
     }
 
     // Close modal if clicking on the overlay (outside the content box)

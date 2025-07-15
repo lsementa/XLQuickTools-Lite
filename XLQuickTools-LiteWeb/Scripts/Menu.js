@@ -70,7 +70,6 @@ document.addEventListener('click', function (event) {
     }
 });
 
-
 // Menu item clicked
 async function handleClick(action, event) {
     // console.log("Action (from Task Pane):", action);
@@ -158,9 +157,6 @@ async function handleClick(action, event) {
                 break;
             case 'toggle-autofilter':
                 toggleAutoFilter();
-                break;
-            case 'copy-highlighted':
-                copyHighlightedClipboard();
                 break;
             case 'unique-count':
                 countUniqueValuesInColumn();
