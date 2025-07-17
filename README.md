@@ -6,7 +6,7 @@ A lightweight, cross-platform version of my [Quick Tools](https://github.com/lse
 <img src="images/main.png" alt="Screenshot">
 </div>
 
-## Platform Comparison
+## Platforms
 
 | Version             | Platform(s) Supported                           | Technology      |
 |---------------------|--------------------------------------------------|-----------------|
@@ -26,6 +26,7 @@ A lightweight, cross-platform version of my [Quick Tools](https://github.com/lse
   - Remove Letters `[A-Z]`
   - Remove Numbers `[0-9]`
   - Remove Special Characters `[~!@#$%^&*]`
+  - Subscript Numbers (Unicode)
 - **Date/Text Converter** – Converts date formats or dates stored as text between different regional styles. Easily switch between Excel and text dates.
 
 ---
@@ -33,10 +34,10 @@ A lightweight, cross-platform version of my [Quick Tools](https://github.com/lse
 ### Cell Tools
 - **Delete Empty Rows** – Removes rows with no data.
 - **Delete Empty Columns** – Removes columns with no data.
-- **Copy Highlighted Cells** - Copy any highlighted cells in a selection to clipboard.
-- **Remove Hyperlinks** - Removes both formula and cell-based hyperlinks from a selection.
-- **Add Parameterized Links** - Add hyperlinks based on a supplied parameterized URL.
 - **Fill Down** – Fills down values in empty cells based on the cell above.
+- **Remove Hyperlinks** - Removes both formula and cell-based hyperlinks from a selection.
+- **Add HyperLinks** - Add hyperlinks based on a supplied parameterized URL or with cells that contain a URL.
+
 
 ---
 
