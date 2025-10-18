@@ -61,7 +61,7 @@ A lightweight, cross-platform version of my [Quick Tools](https://github.com/lse
 ---
 
 ## How to Install
-Unfortunetly this add-in is not available via the AppSource marketplace. It can be used by [sideloading](https://learn.microsoft.com/en-us/office/dev/add-ins/testing/test-debug-office-add-ins#sideload-an-office-add-in-for-testing).
+This add-in is not available via the AppSource marketplace. It can be used by [sideloading](https://learn.microsoft.com/en-us/office/dev/add-ins/testing/test-debug-office-add-ins#sideload-an-office-add-in-for-testing).
 
 1.  Click [here](https://github.com/lsementa/XLQuickTools-Lite/releases) and select the latest release.
 2.  Download the manifest XML file `XLQuickTools-Lite.xml`.
