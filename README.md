@@ -1,6 +1,6 @@
 # XLQuickTools Lite (Office 365 / Mac / Web)
 
-A lightweight, cross-platform version of my [Quick Tools](https://github.com/lsementa/XLQuickTools) VSTO Excel Add-In.
+A lightweight, cross-platform version of my [Quick Tools](https://github.com/lsementa/XLQuickTools) Excel Add-In.
 
 [How to Install](#how-to-install)
 
